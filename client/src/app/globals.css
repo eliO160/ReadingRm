@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/* Dark-mode variant (class strategy for next-themes) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #ffffff; /* light background color */
+  --fg: #111111; /* light text */
+
+    /* paper texture controls */
+  --texture-url: url("/textures/olga-thelavart-vS3idIiYxX0-unsplash.jpg");
+  --texture-size: 512px 512px;  /* adjust grain scale */
+  --texture-repeat: repeat;
+  --texture-opacity: 1;         /* use 1 for natural look on background layer */
+}
+
+.dark {
+  --bg: #0b0b0b; /* dark background color */
+  --fg: #f5f5f5;  /* dark text */
+    /* remove texture in dark mode */
+  --texture-url: none;
+}
+
+html, body { height: 100%; }
+
+html {
+    /* Make the paper the page background */
+  background-color: var(--bg);
+  background-image: var(--texture-url);
+  background-repeat: var(--texture-repeat);
+  background-size: var(--texture-size);
+}
+
+.dark html {
+  background-image: none !important; /* override texture completely */
+  background-color: #000;            /* pure black */
+}
+
+body {
+  background: transparent;
+  color: var(--fg);
+  font-family: "Libre Baskerville", serif;
+  font-size: large;
+  margin: 0;
+  position: relative;
+}
+
+/* ===== Accessibility-friendly fallbacks ===== */
+/* Users requesting more contrast or forced-colors get a plain background */
+@media (prefers-contrast: more), (forced-colors: active), print {
+  html { background-image: none; }
+}
