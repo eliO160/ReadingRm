@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently -n SERVER,CLIENT -c blue,magenta \"npm:dev:server\" \"npm:dev:client\"",
-    "dev:server": "cross-env PORT=5051 nodemon server/server.js",
+    "dev": "concurrently -n SERVER,CLIENT -c blue,magenta \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "dev:server": "npm --prefix server run dev",
     "dev:client": "npm --prefix client run dev"
   },
   "keywords": [],
@@ -17,7 +17,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "firebase": "^12.3.0",
+    "firebase-admin": "^13.5.0",
     "mongoose": "^8.17.1"
   },
   "devDependencies": {
