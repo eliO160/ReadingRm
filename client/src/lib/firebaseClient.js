@@ -10,6 +10,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FB_APP_ID,
 };
 
-// Initialize Firebase
+// Ensure a single app instance across HMR and multiple imports
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+//Export auth for client components to use
 export const auth = getAuth(app);

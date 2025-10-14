@@ -1,4 +1,7 @@
+//user signs in → you call your API with a token → server verifies → Mongo upserts user
+
 "use client";
+
 import { useState } from "react";
 import { auth } from "@/lib/firebaseClient";
 import {
@@ -6,140 +9,72 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  signOut,
 } from "firebase/auth";
-import {
-  TextField, Label, Input, Text, Button, Heading
-} from "react-aria-components";
-
-// Optional: if you want to redirect back to where the user came from
-function getReturnTo() {
-  if (typeof window === "undefined") return "/";
-  const url = new URL(window.location.href);
-  return url.searchParams.get("returnTo") || "/";
-}
 
 export default function SignInPage() {
-  // Local form state (controlled inputs keep UI in sync)
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("");
+  const [msg, setMsg] = useState("");
+  const [profile, setProfile] = useState(null);
 
-  async function handleSubmit(e) {
+  async function signInEmail(e) {
     e.preventDefault();
-    setErr("");
-    setLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, email, pw);
-      // optional: go back to where the soft gate sent us from
-      window.location.assign(getReturnTo());
-    } catch (error) {
-      setErr(error.message);
-    } finally {
-      setLoading(false);
-    }
+    setMsg("");
+    try { await signInWithEmailAndPassword(auth, email, pw); setMsg("Signed in."); }
+    catch (err) { setMsg(err.message); }
   }
 
-  async function handleSignUp(e) {
-    e.preventDefault();
-    setErr("");
-    setLoading(true);
-    try {
-      await createUserWithEmailAndPassword(auth, email, pw);
-      window.location.assign(getReturnTo());
-    } catch (error) {
-      setErr(error.message);
-    } finally {
-      setLoading(false);
-    }
+  async function signUpEmail() {
+    setMsg("");
+    try { await createUserWithEmailAndPassword(auth, email, pw); setMsg("Account created."); }
+    catch (err) { setMsg(err.message); }
   }
 
-  async function handleGoogle() {
-    setErr("");
-    setLoading(true);
+  async function signInGoogle() {
+    setMsg("");
+    try { await signInWithPopup(auth, new GoogleAuthProvider()); setMsg("Google sign-in complete."); }
+    catch (err) { setMsg(err.message); }
+  }
+
+  async function callProtected() {
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
-      window.location.assign(getReturnTo());
-    } catch (error) {
-      setErr(error.message);
-    } finally {
-      setLoading(false);
+      if (!auth.currentUser) throw new Error("Sign in first");
+      const token = await auth.currentUser.getIdToken();
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`API ${res.status}`);
+      setProfile(await res.json());
+      setMsg("Fetched profile from API.");
+    } catch (err) {
+      setMsg(err.message);
     }
   }
 
   return (
-    <main className="container mx-auto max-w-md px-4 py-8">
-      <section aria-labelledby="signin-title">
-        <Heading id="signin-title" level={1}>Sign in</Heading>
+    <main style={{ maxWidth: 480, margin: "2rem auto", padding: 16 }}>
+      <h1>Sign in</h1>
+      <div style={{ display: "flex", gap: 8, margin: "8px 0" }}>
+        <button onClick={signInGoogle}>Continue with Google</button>
+        <button onClick={() => signOut(auth)}>Sign out</button>
+      </div>
 
-        <form onSubmit={handleSubmit} noValidate>
+      <form onSubmit={signInEmail} style={{ display: "grid", gap: 8 }}>
+        <input placeholder="Email" value={email} onChange={(e)=>setEmail(e.target.value)} />
+        <input placeholder="Password" type="password" value={pw} onChange={(e)=>setPw(e.target.value)} />
+        <div style={{ display: "flex", gap: 8 }}>
+          <button type="submit">Sign in</button>
+          <button type="button" onClick={signUpEmail}>Create account</button>
+        </div>
+      </form>
 
-          <TextField isRequired className="mt-4 block">
-            <Label>Email</Label>
-            <Input
-              type="email"
-              name="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <Text slot="description">Use your school or personal email.</Text>
-            {/* You can also show field-specific errors via slot="errorMessage" */}
-          </TextField>
+      <div style={{ marginTop: 12 }}>
+        <button onClick={callProtected}>Call protected /api/profile</button>
+      </div>
 
-          <TextField isRequired className="mt-4 block">
-            <Label>Password</Label>
-            <Input
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              value={pw}
-              onChange={(e) => setPw(e.target.value)}
-              required
-              minLength={8}
-            />
-            <Text slot="description">Password must be at least 8 characters.</Text>
-          </TextField>
-
-          {/* Global error message (announced by screen readers) */}
-          {err && (
-            <div role="alert" className="mt-3 text-sm text-red-600">
-              {err}
-            </div>
-          )}
-
-          <div className="mt-6 grid gap-2">
-            <Button
-              type="submit"
-              isDisabled={loading}
-              className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
-            >
-              {loading ? "Signing in…" : "Sign in"}
-            </Button>
-
-            {/* Optional: quick sign-up on the same page */}
-            <Button
-              type="button"
-              onPress={handleSignUp}
-              isDisabled={loading}
-              className="rounded border px-4 py-2"
-            >
-              Create account
-            </Button>
-
-            {/* Google sign-in (must be user-initiated click) */}
-            <Button
-              type="button"
-              onPress={handleGoogle}
-              isDisabled={loading}
-              className="rounded border px-4 py-2"
-            >
-              Continue with Google
-            </Button>
-          </div>
-        </form>
-      </section>
+      {msg && <p style={{ marginTop: 12 }}>Status: {msg}</p>}
+      {profile && <pre style={{ background: "#f6f6f6", padding: 12 }}>{JSON.stringify(profile, null, 2)}</pre>}
     </main>
   );
 }
