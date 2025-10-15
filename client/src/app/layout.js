@@ -1,6 +1,6 @@
 //default layout for the app, defines structure/outer shell of the app (things that stay consistent across pages)
-import { ThemeProvider } from 'next-themes';
 import './globals.css';
+import { ThemeProvider } from 'next-themes';
 import Header from '../components/Header';
 import NavBar from '../components/NavBar';
 

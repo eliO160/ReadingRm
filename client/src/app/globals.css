@@ -1,60 +1,124 @@
 @import "tailwindcss";
 
-/* Dark-mode variant (class strategy for next-themes) */
+/* 
+   Dark-mode helper:
+   This creates a custom "dark" variant that applies styles whenever an element is
+   inside .dark (e.g., when <html class="dark"> is present). It plays nicely with next-themes.
+*/
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
-  --bg: #ffffff; /* light background color */
-  --fg: #111111; /* light text */
+/* ----------------------------- */
+/* 1) DESIGN TOKENS (CSS variables)
+/* ----------------------------- */
 
-    /* paper texture controls */
+/* defaults for light mode */
+:root {
+  --bg: #ffffff; /* background color */
+  --fg: #111111; /* text */
+
+    /* focus ring + link colors (light) */
+  --link: #111111;         
+  --link-hover: #5e5b6a;   
+
+    /* paper texture controls (light) */
   --texture-url: url("/textures/olga-thelavart-vS3idIiYxX0-unsplash.jpg");
-  --texture-size: 512px 512px;  /* adjust grain scale */
+  --texture-size: 512px 512px;  /* scale the texture */
   --texture-repeat: repeat;
-  --texture-opacity: 1;         /* use 1 for natural look on background layer */
+  --texture-opacity: 1;         /* 1 for natural look on background layer */
 }
 
+/* When <html class="dark"> is present, these variables override the light ones */
 .dark {
-  --bg: #0b0b0b; /* dark background color */
-  --fg: #f5f5f5;  /* dark text */
-    /* remove texture in dark mode */
+  --bg: #0b0b0b; /* background color */
+  --fg: #f5f5f5;  /* text */
+
+  /* focus ring + link colors (dark) */
+  --link: #a78bfa;         /* violet-300 */
+  --link-hover: #c4b5fd;   /* violet-200 */
+
+  /* remove texture in dark mode for cleaner look */
   --texture-url: none;
 }
 
-html, body { height: 100%; }
+/* ----------------------------- */
+/* 2) GLOBAL ELEMENT DEFAULTS
+/* ----------------------------- */
+
+html, body { 
+  height: 100%; 
+}
 
 html {
-    /* Make the paper the page background */
   background-color: var(--bg);
   background-image: var(--texture-url);
   background-repeat: var(--texture-repeat);
   background-size: var(--texture-size);
 }
 
-.dark html {
-  background-image: none !important; /* override texture completely */
-  background-color: #000;            /* pure black */
+html.dark {
+  background-image: none !important; /* fully disable texture in dark mode */
+  background-color: #121212;             /* dark gray background in dark mode, 292828 */
 }
 
+/* Text + base typography on <body> */
 body {
-  background: transparent;
-  color: var(--fg);
-  font-family: "Libre Baskerville", serif;
-  font-size: large;
-  margin: 0;
-  position: relative;
+  background: transparent;                     /* let html's background show through */
+  color: var(--fg);                            /* main text color */
+  font-family: "Libre Baskerville", serif;     /* reading font */
+  font-size: large;                            /* slightly larger default size */
+  margin: 0;                                   /* remove default margin */
+  position: relative;                          /* useful for positioned children */
 }
 
-/* ===== Accessibility-friendly fallbacks ===== */
-/* Users requesting more contrast or forced-colors get a plain background */
+/* ----------------------------- */
+/* 3) ACCESSIBILITY + RESILIENCE
+/* ----------------------------- */
+
+/* 
+   If the user requests more contrast, uses forced colors, or when printing,
+   drop the texture to keep things readable and ink-friendly.
+*/
 @media (prefers-contrast: more), (forced-colors: active), print {
   html { background-image: none; }
 }
 
+/* ----------------------------- */
+/* 4) WEB FONTS
+/* ----------------------------- */
+
+/* 
+   Register the OpenDyslexic font for optional use elsewhere (e.g., a toggle).
+   Make sure /public/fonts/OpenDyslexic-Regular.woff2 exists.
+*/
 @font-face {
   font-family: "OpenDyslexic";
   src: url("/fonts/OpenDyslexic-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: swap;  /* show fallback font until this loads, then swap */
+}
+
+/* ----------------------------- */
+/* 5) FOCUS + LINKS + TEXT BASICS
+/* ----------------------------- */
+
+/* Unified, visible focus style for keyboard users (accessibility win) */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Default link appearance; color comes from our tokens (light/dark aware) */
+a {
+  color: var(--link);
+  text-underline-offset: 3px; /* pushes underline away from glyphs = more readable */
+}
+a:hover {
+  color: var(--link-hover);
+}
+
+/* Paragraph readability: taller line height + color from token */
+p {
+  line-height: 1.75;
+  color: var(--fg);
 }
