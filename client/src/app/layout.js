@@ -1,8 +1,9 @@
 //default layout for the app, defines structure/outer shell of the app (things that stay consistent across pages)
 import './globals.css';
 import { ThemeProvider } from 'next-themes';
-import Header from '../components/Header';
-import NavBar from '../components/NavBar';
+import SiteHeader from '../components/SiteHeader';
+//import Header from '../components/Header';
+//import NavBar from '../components/NavBar';
 
 export const metadata = { title: 'ReadingRm' };
 
@@ -15,8 +16,10 @@ export default function RootLayout({ children }) {
           defaultTheme="system" 
           enableSystem
         >
-          <Header />
-          <NavBar />
+          <SiteHeader />
+          {/* <NavBar />
+          <Header /> */}
+
           <main className="container mx-auto px-4 py-6">
             {children}
           </main>
