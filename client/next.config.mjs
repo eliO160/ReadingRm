@@ -4,6 +4,17 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '../.env' }); // load root .env
 
 const nextConfig = {
+  images: {
+    // Allow external images for covers, etc.
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'www.gutenberg.org',
+        pathname: '/cache/epub/**',
+      },
+    ],
+  },
+    
   async rewrites() { //redirect the /api requests to the backend server at port 5051
     return [
       {

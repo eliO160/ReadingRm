@@ -1,8 +1,8 @@
 'use client';
 
 import { Heading, Link as AriaLink} from "react-aria-components";
-import { LinkButton } from '@/components/ui/AppButton';
-
+import CardLink from '@/components/ui/CardLink';
+import { BookOpen, Github } from 'lucide-react';
 
 export default function AboutPage() {
   return (
@@ -27,14 +27,16 @@ export default function AboutPage() {
           and can be found on GitHub. 
         </p>
 
-        <p>
-          <LinkButton
+        <section>
+          <CardLink
             href="https://github.com/garethbjohnson/gutendex"
             external
+            title="Gutendex on GitHub"
+            icon={<Github className="h-6 w-6" aria-hidden="true" />}
           >
-            Gutendex on GitHub
-          </LinkButton>
-        </p>
+            Explore the source code, issues, and documentation for the Gutendex API.
+          </CardLink>
+
 
         <p>
           Project Gutenberg is a volunteer-driven initiative that digitizes and archives
@@ -47,14 +49,15 @@ export default function AboutPage() {
           Support Gutendex and Project Gutenberg by visiting their websites and contributing to their efforts.
         </p>
 
-        <p>
-          <LinkButton
+          <CardLink
             href="https://www.gutenberg.org"
             external
+            title="Visit Project Gutenberg"
+            icon={<BookOpen className="h-6 w-6" aria-hidden="true" />}
           >
-            Visit Project Gutenberg
-          </LinkButton>
-        </p>
+            Browse over 75,000 free eBooks—classics and more—digitized by volunteers.
+          </CardLink>
+        </section>
 
       </main>
     </>
