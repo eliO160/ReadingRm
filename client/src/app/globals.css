@@ -15,16 +15,25 @@
 :root {
   --bg: #ffffff; /* background color */
   --fg: #111111; /* text */
+  
 
     /* focus ring + link colors (light) */
   --link: #111111;         
-  --link-hover: #5e5b6a;   
-
+  --link-hover: #5e5b6a;
+  --ring: #7c3aed;               /* focus outline color (violet-600) */
+  
     /* paper texture controls (light) */
   --texture-url: url("/textures/olga-thelavart-vS3idIiYxX0-unsplash.jpg");
   --texture-size: 512px 512px;  /* scale the texture */
   --texture-repeat: repeat;
   --texture-opacity: 1;         /* 1 for natural look on background layer */
+
+  /* button tokens (light) */
+  --btn-bg: #a78bfa;             /* violet-300 */
+  --btn-fg: #111111;             /* readable on light purple */
+  --btn-hover-bg: #8b5cf6;       /* violet-500 */
+  --btn-border: transparent;
+  --btn-radius: 0.75rem;         /* 12px rounded-xl vibe */
 }
 
 /* When <html class="dark"> is present, these variables override the light ones */
@@ -35,6 +44,13 @@
   /* focus ring + link colors (dark) */
   --link: #a78bfa;         /* violet-300 */
   --link-hover: #c4b5fd;   /* violet-200 */
+  --ring: #c4b5fd;               /* violet-200 */
+
+  /* button tokens (dark) */
+  --btn-bg: #7c3aed;             /* violet-600 */
+  --btn-fg: #ffffff;
+  --btn-hover-bg: #6d28d9;       /* violet-700 */
+  --btn-border: transparent;
 
   /* remove texture in dark mode for cleaner look */
   --texture-url: none;
@@ -82,6 +98,8 @@ body {
   html { background-image: none; }
 }
 
+
+
 /* ----------------------------- */
 /* 4) WEB FONTS
 /* ----------------------------- */
@@ -121,4 +139,42 @@ a:hover {
 p {
   line-height: 1.75;
   color: var(--fg);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;          /* default size = md */
+  font-weight: 600;
+  text-decoration: none;           /* so links-as-buttons don’t look underlined */
+  color: var(--btn-fg);
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: var(--btn-radius);
+  transition: transform 120ms ease, background-color 120ms ease;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+}
+
+.btn:hover {
+  background: var(--btn-hover-bg);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* Make disabled states obvious and accessible */
+.btn[aria-disabled="true"],
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
 }

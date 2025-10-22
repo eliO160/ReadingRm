@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import SearchBar from './SearchBar';
+import PrimaryNav from '@/components/PrimaryNav';
+import { primaryLinks } from '@/config/navConfig';
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -16,11 +18,10 @@ export default function SiteHeader() {
         sticky top-0 z-40
         border-b border-neutral-200/70 dark:border-neutral-800
         backdrop-blur
+        bg-[color:var(--bg)]
       "
-      // Use your tokenized background from globals.css
-      style={{ backgroundColor: 'color-mix(in srgb, var(--bg) 88%, transparent)' }}
     >
-      {/* Skip link for a11y */}
+      {/* Skip link */}
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:m-2 focus:rounded focus:bg-black/10 dark:focus:bg-white/10 focus:px-2 focus:py-1">
         Skip to content
       </a>
@@ -28,7 +29,7 @@ export default function SiteHeader() {
       <div className="mx-auto max-w-screen-xl px-3 sm:px-4 md:px-6">
         {/* Top bar */}
         <div className="flex h-14 items-center justify-between gap-3">
-          {/* Brand (Header content) */}
+          {/* Brand */}
           <h1 className="leading-none">
             <Link
               href="/"
@@ -38,19 +39,16 @@ export default function SiteHeader() {
             </Link>
           </h1>
 
-          {/* Search (hide on very small screens) */}
+          {/* Search (hide on xs) */}
           <div className="hidden sm:block w-[min(100%,22rem)] md:w-[28rem]">
             <SearchBar />
           </div>
 
           {/* Desktop nav */}
-          <nav aria-label="Primary" className="hidden sm:flex items-center gap-6">
-            <Link href="/about">About</Link>
-            <Link href="/demo_page">Demo Page</Link>
-            <Link href="/search">Advanced Search</Link>
-            <Link href="/signIn">Sign In</Link>
+          <div className="hidden sm:flex items-center gap-6">
+            <PrimaryNav links={primaryLinks} />
             <ThemeToggle />
-          </nav>
+          </div>
 
           {/* Mobile menu button */}
           <button
@@ -69,18 +67,18 @@ export default function SiteHeader() {
         <nav
           id="mobile-menu"
           aria-label="Primary (mobile)"
-          className={`${open ? 'block' : 'hidden'} sm:hidden pb-3`}
-          style={{ backgroundColor: 'color-mix(in srgb, var(--bg) 94%, transparent)' }}
+          className={`${open ? 'block' : 'hidden'} sm:hidden pb-3 bg-[color:var(--bg)]`}
         >
           <div className="space-y-2 pt-1">
             <div className="px-1">
               <SearchBar /* compact */ />
             </div>
             <div className="flex flex-col px-1">
-              <Link className="py-2" href="/about" onClick={() => setOpen(false)}>About</Link>
-              <Link className="py-2" href="/demo_page" onClick={() => setOpen(false)}>Demo Page</Link>
-              <Link className="py-2" href="/search" onClick={() => setOpen(false)}>Advanced Search</Link>
-              <Link className="py-2" href="/signIn" onClick={() => setOpen(false)}>Sign In</Link>
+              <PrimaryNav
+                links={primaryLinks}
+                className="flex flex-col"
+                onItemClick={() => setOpen(false)}
+              />
               <div className="py-2">
                 <ThemeToggle />
               </div>

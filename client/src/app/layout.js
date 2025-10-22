@@ -2,8 +2,6 @@
 import './globals.css';
 import { ThemeProvider } from 'next-themes';
 import SiteHeader from '../components/SiteHeader';
-//import Header from '../components/Header';
-//import NavBar from '../components/NavBar';
 
 export const metadata = { title: 'ReadingRm' };
 
@@ -17,8 +15,6 @@ export default function RootLayout({ children }) {
           enableSystem
         >
           <SiteHeader />
-          {/* <NavBar />
-          <Header /> */}
 
           <main className="container mx-auto px-4 py-6">
             {children}
