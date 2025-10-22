@@ -7,6 +7,7 @@ import { useReaderPrefs } from '@/components/customizations/useReaderPrefs';
 import ReaderSettingsPopover from '@/components/customizations/ReaderSettingsPopover';
 
 const DEMO_PATH = '/demo/pg1661-images.html';
+const cx = (...x) => x.filter(Boolean).join(' ');
 
 export default function DemoReaderPage() {
   const { prefs, setPref } = useReaderPrefs();
@@ -15,7 +16,8 @@ export default function DemoReaderPage() {
   const [rawHtml, setRawHtml] = useState('');
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
-
+  
+  // Load demo HTML from /public
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -43,68 +45,67 @@ export default function DemoReaderPage() {
     [rawHtml]
   );
 
-  const vars = {
-    '--reader-size': size === 'S' ? '16px' : size === 'M' ? '18px' : '20px',
-    ...(mode === 'light' && { '--reader-bg': '#ffffff', '--reader-fg': '#111111' }),
-    ...(mode === 'sepia' && { '--reader-bg': '#f4ecd8', '--reader-fg': '#2b2320' }),
-    ...(mode === 'dark' && { '--reader-bg': '#0e0e0f', '--reader-fg': '#e8e8e8' }),
-    '--reader-max': width === 'S' ? '55ch' : width === 'M' ? '70ch' : '85ch',
-    '--reader-font':
-      font === 'serif'
-        ? 'Georgia, "Times New Roman", serif'
-        : font === 'dyslexic'
-        ? '"OpenDyslexic", "Atkinson Hyperlegible", system-ui, sans-serif'
-        : 'Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
-  };
+
+  const mainClass = cx(
+    "reader flex min-h-[100dvh] flex-col",
+    mode === 'light' && "reader--light reader--use-site-bg",
+    mode === 'sepia' && "reader--sepia",
+    mode === 'dark'  && "reader--dark",
+    mode === 'paper' && 'reader--paper',
+    size === 'S' && "reader--size-s",
+    size === 'M' && "reader--size-m",
+    size === 'L' && "reader--size-l",
+    width === 'S' && "reader--width-s",
+    width === 'M' && "reader--width-m",
+    width === 'L' && "reader--width-l",
+    font === 'serif'    && "reader--font-serif",
+    font === 'sans'     && "reader--font-sans",
+    font === 'dyslexic' && "reader--font-dyslexic",
+  );
 
   return (
-    <main className="flex min-h-[100dvh] flex-col bg-[var(--reader-bg)] text-[var(--reader-fg)]" style={vars}>
-      {/* Settings gear */}
-      <div className="fixed left-4 top-1/2 -translate-y-1/2 z-50">
-        <ReaderSettingsPopover prefs={prefs} setPref={setPref} closeOnSelect={false} />
+    <main className={mainClass}>
+      {/* Settings */}
+      <div className="fixed top-25 left-4 -translate-y-1/2 z-50">
+        <ReaderSettingsPopover
+          prefs={prefs}
+          setPref={setPref}
+          closeOnSelect={false}
+        />
       </div>
 
-      <section className="flex min-h-0 flex-1">
-        <aside className="w-[clamp(0px,8vw,240px)]" aria-hidden="true" />
-        <div className="mx-auto flex-1 overflow-auto px-4 py-4 max-w-[var(--reader-max)]">
-          {/* Cover image */}
-          <figure className="mb-6">
-            <Image
-              src="/demo/cover.jpg"
-              alt="Cover of The Adventures of Sherlock Holmes"
-              width={800}      // pick a reasonable intrinsic size
-              height={1200}    // keep the aspect ratio
-              priority
-              className="mx-auto rounded-xl shadow"
-              sizes="(max-width: 900px) 90vw, 800px"
-            />
-            <figcaption className="mt-2 text-center text-sm opacity-70">
-              The Adventures of Sherlock Holmes — Project Gutenberg
-            </figcaption>
-          </figure>
-
-          {/* Book HTML */}
-          <article
-            className="prose dark:prose-invert max-w-none"
-            style={{
-              fontFamily: 'var(--reader-font)',
-              fontSize: 'var(--reader-size)',
-              lineHeight: 1.65,
-              textRendering: 'optimizeLegibility',
-            }}
-            aria-live="polite"
-            dangerouslySetInnerHTML={{ __html: loading ? '' : safeHtml }}
+      <header className="mx-auto w-full max-w-[var(--reader-max)] px-4 pt-6 text-center">
+        <div className="relative mx-auto aspect-[2/3] w-40 sm:w-48 md:w-56 lg:w-64 xl:w-72 overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
+          <Image
+            src="/demo/cover.jpg"
+            alt="Cover of The Adventures of Sherlock Holmes"
+            fill
+            sizes="(max-width: 640px) 10rem, (max-width: 768px) 12rem, (max-width: 1024px) 14rem, 16rem"
+            className="object-cover"
+            priority
           />
         </div>
+        <h1 className="mt-4 text-2xl sm:text-3xl font-bold leading-tight">
+          The Adventures of Sherlock Holmes (Demo)
+        </h1>
+        <p className="mt-1 text-base sm:text-lg opacity-80">Project Gutenberg</p>
+      </header>
+
+      {/* 3-column layout */}
+      <section className="flex min-h-0 flex-1">
+        <aside className="w-[clamp(0px,8vw,240px)]" aria-hidden="true" />
+        <article
+          className="reader-content mx-auto flex-1 overflow-auto px-4 py-4"
+          aria-live="polite"
+          // The CSS in globals.css neutralizes PG inline black/white colors
+          dangerouslySetInnerHTML={{ __html: loading ? '' : safeHtml }}
+        />
         <div className="w-[clamp(0px,8vw,240px)]" aria-hidden="true" />
       </section>
 
       {loading && <p className="px-4 py-3 text-center text-neutral-500">Loading…</p>}
       {err && <p className="px-4 py-3 text-center text-red-600">Error: {err}</p>}
-
-      <footer className="mt-4 px-4 pb-6 text-xs opacity-70">
-        Demo content from Project Gutenberg (Work #1661). Public domain. Please retain the license notice.
-      </footer>
     </main>
   );
+
 }

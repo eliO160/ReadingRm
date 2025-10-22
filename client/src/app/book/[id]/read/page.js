@@ -9,6 +9,8 @@ import { getBestCoverUrl } from '@/lib/covers';
 import { useReaderPrefs } from '@/components/customizations/useReaderPrefs';
 import ReaderSettingsPopover from '@/components/customizations/ReaderSettingsPopover';
 
+const cx = (...x) => x.filter(Boolean).join(' ');
+
 export default function BookReaderPage() {
   const { id } = useParams();
   const { prefs, setPref } = useReaderPrefs();
@@ -60,45 +62,39 @@ export default function BookReaderPage() {
   }, [id]);
 
   const safeHtml = useMemo(
-    () =>
-      DOMPurify.sanitize(rawHtml, {
+    () => DOMPurify.sanitize(rawHtml, {
         USE_PROFILES: { html: true },
         FORBID_TAGS: ['script', 'style', 'link'],
       }),
     [rawHtml]
   );
 
-  // Map presets → CSS variables (used in inline style below)
-  const vars = {
-    // font size
-    '--reader-size': size === 'S' ? '16px' : size === 'M' ? '18px' : '20px',
-    // color mode
-    ...(mode === 'light' && { '--reader-bg': '#ffffff', '--reader-fg': '#111111' }),
-    ...(mode === 'sepia' && { '--reader-bg': '#f4ecd8', '--reader-fg': '#2b2320' }),
-    ...(mode === 'dark' && { '--reader-bg': '#0e0e0f', '--reader-fg': '#e8e8e8' }),
-    // reader width
-    '--reader-max': width === 'S' ? '55ch' : width === 'M' ? '70ch' : '85ch',
-    // font family
-    '--reader-font':
-      font === 'serif'
-        ? 'Georgia, "Times New Roman", serif'
-        : font === 'dyslexic'
-        ? '"OpenDyslexic", "Atkinson Hyperlegible", system-ui, sans-serif'
-        : 'Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
-  };
-
   const title = book?.title || `Gutenberg #${id}`;
   const authors = book?.authors?.map(a => a.name).join(', ') || 'Unknown author';
   const coverUrl = getBestCoverUrl(book || { id: Number(id) }, 'medium');
 
+  const mainClass = cx(
+    "reader flex min-h-[100dvh] flex-col",
+    mode === 'light' && "reader--light reader--use-site-bg",
+    mode === 'sepia' && "reader--sepia",
+    mode === 'dark'  && "reader--dark",
+    mode === 'paper' && 'reader--paper',
+    size === 'S' && "reader--size-s",
+    size === 'M' && "reader--size-m",
+    size === 'L' && "reader--size-l",
+    width === 'S' && "reader--width-s",
+    width === 'M' && "reader--width-m",
+    width === 'L' && "reader--width-l",
+    font === 'serif'    && "reader--font-serif",
+    font === 'sans'     && "reader--font-sans",
+    font === 'dyslexic' && "reader--font-dyslexic",
+  );
 
   return (
     <main
-      className="flex min-h-[100dvh] flex-col bg-[var(--reader-bg)] text-[var(--reader-fg)]"
-      style={vars}
-    >
+      className={mainClass}>
       {/* Settings gear */}
-      <div className="fixed left-4 top-1/2 -translate-y-1/2 z-50">
+      <div className="fixed top-25 left-4 -translate-y-1/2 z-50">
         <ReaderSettingsPopover
           prefs={prefs}
           setPref={setPref}
@@ -108,14 +104,9 @@ export default function BookReaderPage() {
 
       {/* Reader header with cover */}
       <header className="mx-auto w-full max-w-[var(--reader-max)] px-4 pt-6 text-center">
+
         {/* COVER — size controlled by this container */}
-        <div
-          className="
-            relative mx-auto aspect-[2/3]
-            w-40 sm:w-48 md:w-56 lg:w-64 xl:w-72
-            overflow-hidden rounded-md bg-black/5 dark:bg-white/5
-          "
-        >
+        <div className="relative mx-auto aspect-[2/3] w-40 sm:w-48 md:w-56 lg:w-64 xl:w-72 overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
           {coverUrl ? (
             <Image
               src={coverUrl}
@@ -142,16 +133,7 @@ export default function BookReaderPage() {
       <section className="flex min-h-0 flex-1">
         <aside className="w-[clamp(0px,8vw,240px)]" aria-hidden="true" />
         <article
-          className="
-            mx-auto flex-1 overflow-auto px-4 py-4
-            max-w-[var(--reader-max)]
-          "
-          style={{
-            fontFamily: 'var(--reader-font)',
-            fontSize: 'var(--reader-size)',
-            lineHeight: 1.65,
-            textRendering: 'optimizeLegibility',
-          }}
+          className="reader-content mx-auto flex-1 overflow-auto px-4 py-4"
           aria-live="polite"
           dangerouslySetInnerHTML={{ __html: loading ? '' : safeHtml }}
         />
