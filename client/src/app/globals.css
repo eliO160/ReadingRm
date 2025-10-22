@@ -2,8 +2,7 @@
 
 /* 
    Dark-mode helper:
-   This creates a custom "dark" variant that applies styles whenever an element is
-   inside .dark (e.g., when <html class="dark"> is present). It plays nicely with next-themes.
+   Applies styles whenever an element is inside .dark (e.g., <html class="dark">).
 */
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -15,44 +14,41 @@
 :root {
   --bg: #ffffff; /* background color */
   --fg: #111111; /* text */
-  
 
-    /* focus ring + link colors (light) */
-  --link: #111111;         
+  /* links + focus ring (light) */
+  --link: #111111;
   --link-hover: #5e5b6a;
-  --ring: #7c3aed;               /* focus outline color (violet-600) */
-  
-    /* paper texture controls (light) */
+  --ring: #7c3aed; /* violet-600 */
+
+  /* paper texture controls (light) */
   --texture-url: url("/textures/olga-thelavart-vS3idIiYxX0-unsplash.jpg");
-  --texture-size: 512px 512px;  /* scale the texture */
+  --texture-size: 512px 512px;
   --texture-repeat: repeat;
-  --texture-opacity: 1;         /* 1 for natural look on background layer */
+  --texture-opacity: 1;
 
   /* button tokens (light) */
-  --btn-bg: #a78bfa;             /* violet-300 */
-  --btn-fg: #111111;             /* readable on light purple */
-  --btn-hover-bg: #8b5cf6;       /* violet-500 */
+  --btn-bg: #a78bfa;   /* violet-300 */
+  --btn-fg: #111111;
+  --btn-hover-bg: #8b5cf6; /* violet-500 */
   --btn-border: transparent;
-  --btn-radius: 0.75rem;         /* 12px rounded-xl vibe */
+  --btn-radius: 0.75rem; /* 12px rounded-xl */
 }
 
-/* When <html class="dark"> is present, these variables override the light ones */
+/* Override tokens when <html class="dark"> is present */
 .dark {
-  --bg: #0b0b0b; /* background color */
-  --fg: #f5f5f5;  /* text */
+  --bg: #0b0b0b;
+  --fg: #f5f5f5;
 
-  /* focus ring + link colors (dark) */
-  --link: #a78bfa;         /* violet-300 */
-  --link-hover: #c4b5fd;   /* violet-200 */
-  --ring: #c4b5fd;               /* violet-200 */
+  --link: #a78bfa;       /* violet-300 */
+  --link-hover: #c4b5fd; /* violet-200 */
+  --ring: #c4b5fd;
 
-  /* button tokens (dark) */
-  --btn-bg: #7c3aed;             /* violet-600 */
+  --btn-bg: #7c3aed;     /* violet-600 */
   --btn-fg: #ffffff;
-  --btn-hover-bg: #6d28d9;       /* violet-700 */
+  --btn-hover-bg: #6d28d9; /* violet-700 */
   --btn-border: transparent;
 
-  /* remove texture in dark mode for cleaner look */
+  /* remove texture in dark for a cleaner look */
   --texture-url: none;
 }
 
@@ -60,9 +56,7 @@
 /* 2) GLOBAL ELEMENT DEFAULTS
 /* ----------------------------- */
 
-html, body { 
-  height: 100%; 
-}
+html, body { height: 100%; }
 
 html {
   background-color: var(--bg);
@@ -72,83 +66,72 @@ html {
 }
 
 html.dark {
-  background-image: none !important; /* fully disable texture in dark mode */
-  background-color: #121212;             /* dark gray background in dark mode, 292828 */
+  background-image: none !important;
+  background-color: #121212; /* deep gray */
 }
 
-/* Text + base typography on <body> */
 body {
-  background: transparent;                     /* let html's background show through */
-  color: var(--fg);                            /* main text color */
-  font-family: "Libre Baskerville", serif;     /* reading font */
-  font-size: large;                            /* slightly larger default size */
-  margin: 0;                                   /* remove default margin */
-  position: relative;                          /* useful for positioned children */
+  background: transparent;           /* let html's background show */
+  color: var(--fg);
+  font-family: "Libre Baskerville", serif; /* site default */
+  font-size: large;
+  margin: 0;
+  position: relative;
 }
 
 /* ----------------------------- */
 /* 3) ACCESSIBILITY + RESILIENCE
 /* ----------------------------- */
 
-/* 
-   If the user requests more contrast, uses forced colors, or when printing,
-   drop the texture to keep things readable and ink-friendly.
-*/
 @media (prefers-contrast: more), (forced-colors: active), print {
   html { background-image: none; }
 }
-
-
 
 /* ----------------------------- */
 /* 4) WEB FONTS
 /* ----------------------------- */
 
-/* 
-   Register the OpenDyslexic font for optional use elsewhere (e.g., a toggle).
-   Make sure /public/fonts/OpenDyslexic-Regular.woff2 exists.
-*/
+/* OpenDyslexic for optional dyslexic-friendly setting */
 @font-face {
   font-family: "OpenDyslexic";
   src: url("/fonts/OpenDyslexic-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;  /* show fallback font until this loads, then swap */
+  font-display: swap;
 }
+
+/* (Optional) If you self-host Inter or Atkinson, register them here too.
+   Otherwise the reader will use the system stack gracefully. */
 
 /* ----------------------------- */
 /* 5) FOCUS + LINKS + TEXT BASICS
 /* ----------------------------- */
 
-/* Unified, visible focus style for keyboard users (accessibility win) */
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 
-/* Default link appearance; color comes from our tokens (light/dark aware) */
 a {
   color: var(--link);
-  text-underline-offset: 3px; /* pushes underline away from glyphs = more readable */
+  text-underline-offset: 3px;
 }
-a:hover {
-  color: var(--link-hover);
-}
+a:hover { color: var(--link-hover); }
 
-/* Paragraph readability: taller line height + color from token */
 p {
   line-height: 1.75;
   color: var(--fg);
 }
 
+/* Buttons (utility class) */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1rem;          /* default size = md */
+  padding: 0.625rem 1rem;
   font-weight: 600;
-  text-decoration: none;           /* so links-as-buttons don’t look underlined */
+  text-decoration: none;
   color: var(--btn-fg);
   background: var(--btn-bg);
   border: 1px solid var(--btn-border);
@@ -156,25 +139,128 @@ p {
   transition: transform 120ms ease, background-color 120ms ease;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
 }
+.btn:hover { background: var(--btn-hover-bg); }
+.btn:active { transform: translateY(1px); }
+.btn[aria-disabled="true"], .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-.btn:hover {
-  background: var(--btn-hover-bg);
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+
+/* ----------------------------- */
+/* 6) READER STYLES (shared by Reader pages + demo)
+/* ----------------------------- */
+
+/* Container establishes reader variables + paints bg/fg */
+.reader {
+  /* safe defaults; page will add modifiers below */
+  --reader-bg: #ffffff;
+  --reader-fg: #111111;
+  --reader-size: 18px;
+  --reader-max: 70ch;
+  --reader-font: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+  --reader-bg-img: none;
+  --reader-bg-size: 512px 512px;
+  --reader-bg-repeat: repeat;
+  --reader-bg-attach: initial;
+
+  background-color: var(--reader-bg);
+  background-image: var(--reader-bg-img);
+  background-size: var(--reader-bg-size);
+  background-repeat: var(--reader-bg-repeat);
+  background-attachment: var(--reader-bg-attach);
+  color: var(--reader-fg);
 }
 
-.btn:active {
-  transform: translateY(1px);
+/* Color modes */
+.reader--light {
+  --reader-bg: #fafaf9;
+  --reader-fg: #1b1b1b;
 }
 
-/* Make disabled states obvious and accessible */
-.btn[aria-disabled="true"],
-.btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
+.reader--sepia { 
+  --reader-bg: #f4ecd8; 
+  --reader-fg: #2b2320; 
 }
 
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .btn {
-    transition: none;
-  }
+.reader--paper {
+  --reader-bg: #fffef9; /* subtle cream base under texture */
+  --reader-fg: #211f1d;
+  --reader-bg-img: url("/textures/olga-thelavart-vS3idIiYxX0-unsplash.jpg");
+  --reader-bg-size: 512px 512px;
+  --reader-bg-repeat: repeat;
+  --reader-bg-attach: fixed; /* texture stays put on scroll */
+}
+
+.reader--dark {
+  --reader-bg: #1b1d20;   /* soft neutral gray */
+  --reader-fg: #e6e7eb;   /* light gray text */
+  --reader-link: #9ec3ff; /* calm blue links */
+  --reader-link-hover: #b7d2ff;
+}
+/* Font sizes */
+.reader--size-s { --reader-size: 16px; }
+.reader--size-m { --reader-size: 18px; }
+.reader--size-l { --reader-size: 20px; }
+
+/* Column widths */
+.reader--width-s { --reader-max: 55ch; }
+.reader--width-m { --reader-max: 70ch; }
+.reader--width-l { --reader-max: 85ch; }
+
+/* Font families */
+.reader--font-serif    { --reader-font: Georgia, "Times New Roman", serif; }
+.reader--font-sans     { --reader-font: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+.reader--font-dyslexic { --reader-font: "OpenDyslexic","Atkinson Hyperlegible",system-ui,sans-serif; }
+
+/* The flowing text area that renders Gutenberg HTML */
+.reader-content {
+  max-width: var(--reader-max);
+  font-family: var(--reader-font);
+  font-size: var(--reader-size);
+  line-height: 1.65;
+  text-rendering: optimizeLegibility;
+}
+
+/* Ensure imported HTML inherits the theme color */
+.reader-content,
+.reader-content p,
+.reader-content li,
+.reader-content span,
+.reader-content div,
+.reader-content blockquote,
+.reader-content figcaption {
+  color: var(--reader-fg);
+}
+
+/* Links inside the book content: readable in both modes */
+.reader-content a { color: #1d4ed8; text-decoration: underline; }
+.reader--dark .reader-content a {
+  color: var(--reader-link);
+  text-decoration: underline;
+}
+.reader--dark .reader-content a:hover {
+  color: var(--reader-link-hover);
+}
+/* Neutralize common inline PG styles that break dark mode */
+.reader-content [style*="color: black"],
+.reader-content [style*="color:#000"],
+.reader-content [style*="color:#000000"] {
+  color: var(--reader-fg) !important;
+}
+.reader-content [style*="background: white"],
+.reader-content [style*="background:#fff"],
+.reader-content [style*="background-color: white"],
+.reader-content [style*="background-color:#fff"] {
+  background: transparent !important;
+}
+/* Reader links for light/sepia/paper for gentle colors */
+.reader--light .reader-content a,
+.reader--paper .reader-content a,
+.reader--sepia .reader-content a {
+  color: #1d4ed8;             /* readable blue */
+}
+.reader--light .reader-content a:hover,
+.reader--paper .reader-content a:hover,
+.reader--sepia .reader-content a:hover {
+  color: #315eea;
 }

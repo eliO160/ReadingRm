@@ -25,6 +25,7 @@ export default function ReaderSettings({ prefs, setPref }) {
           ['light','Light'],
           ['sepia','Sepia'],
           ['dark','Dark'],
+          ['paper','Paper'],
         ]}
         onChange={(v) => setPref('mode', v)}
       />
@@ -71,8 +72,10 @@ function Control({ label, name, value, options, onChange }) {
             aria-checked={active}
             onClick={() => onChange(val)}
             className={[
-              "rounded-full px-3 py-1 text-sm border",
-              active ? "border-neutral-900 bg-neutral-100" : "border-neutral-300 bg-neutral-50 hover:bg-neutral-100"
+              "rounded-full px-3 py-1 text-sm border transition-colors",
+              active 
+              ? "border-[color:var(--ring)] bg-[color:color-mix(in oklab,var(--ring)_15%,transparent)]" 
+              : "border-[color:color-mix(in oklab,var(--fg)_25%,transparent)] bg-[color:color-mix(in oklab,var(--fg)_5%,transparent)] hover:bg-[color:color-mix(in oklab,var(--fg)_10%,transparent)]"
             ].join(" ")}
           >
             {text}
