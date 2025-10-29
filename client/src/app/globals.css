@@ -32,6 +32,14 @@
   --btn-hover-bg: #8b5cf6; /* violet-500 */
   --btn-border: transparent;
   --btn-radius: 0.75rem; /* 12px rounded-xl */
+
+  /* --- Icon button tokens --- */
+  --icon-bg: #f6f6f6;            /* subtle light surface */
+  --icon-fg: #111111;
+  --icon-border: #e5e7eb;        /* gray-200 */
+  --icon-hover-bg: #ededed;      /* a bit darker on hover */
+  --icon-size: 2.5rem;           /* 40px, matches h-10 w-10 */
+  --icon-radius: 0.75rem;        /* rounded-xl */
 }
 
 /* Override tokens when <html class="dark"> is present */
@@ -50,6 +58,11 @@
 
   /* remove texture in dark for a cleaner look */
   --texture-url: none;
+
+  --icon-bg: #1f2937;            /* slate-800-ish elevated surface */
+  --icon-fg: #f5f5f5;
+  --icon-border: #374151;        /* slate-700 */
+  --icon-hover-bg: #2a3443;      /* slightly brighter on hover */
 }
 
 /* ----------------------------- */
@@ -263,4 +276,44 @@ p {
 .reader--paper .reader-content a:hover,
 .reader--sepia .reader-content a:hover {
   color: #315eea;
+}
+
+/* Shared icon button */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  color: var(--icon-fg);
+  background: var(--icon-bg);
+  border: 1px solid var(--icon-border);
+  border-radius: var(--icon-radius);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+  transition: background-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.icon-btn:hover   { background: var(--icon-hover-bg); }
+.icon-btn:active  { transform: translateY(1px); }
+.icon-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+/* Shared popover surface */
+.popover-surface {
+  background: color-mix(in oklab, var(--bg) 92%, white 8%); /* light elevate */
+  border: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
+  color: var(--fg);
+  border-radius: 1rem; /* 16px */
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.20),
+    0  2px  8px rgba(0,0,0,0.10);
+}
+
+/* Dark-mode popover surface tweak (slightly brighter than page) */
+.dark .popover-surface {
+  background: color-mix(in oklab, var(--bg) 82%, white 18%);
+  border-color: color-mix(in oklab, var(--fg) 18%, transparent);
 }
