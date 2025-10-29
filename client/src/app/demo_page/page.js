@@ -1,21 +1,32 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import DOMPurify from 'isomorphic-dompurify';
 import { useReaderPrefs } from '@/components/customizations/useReaderPrefs';
+import ActionRail from '@/components/layout/ActionRail';
 import ReaderSettingsPopover from '@/components/customizations/ReaderSettingsPopover';
+import BookmarkButton from '@/components/user_actions/Bookmark';
+import AddToListButton from '@/components/user_actions/AddToListButton';
+import TocButton from '@/components/user_actions/TocButton';
+import { parseTocFromHtml } from '@/components/toc/parseTocfromHtml';
 
 const DEMO_PATH = '/demo/pg1661-images.html';
 const cx = (...x) => x.filter(Boolean).join(' ');
 
 export default function DemoReaderPage() {
-  const { prefs, setPref } = useReaderPrefs();
+  const { 
+    prefs, setPref, 
+    isBookBookmarked, toggleBookmark,
+    getLists, listsContainingBook,
+    addBookToList, removeBookFromList, createListAndAdd, 
+  } = useReaderPrefs();
   const { size, mode, width, font } = prefs;
 
   const [rawHtml, setRawHtml] = useState('');
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
+  const contentRef = useRef(null);
   
   // Load demo HTML from /public
   useEffect(() => {
@@ -45,6 +56,19 @@ export default function DemoReaderPage() {
     [rawHtml]
   );
 
+  const tocItems = useMemo(() => parseTocFromHtml(rawHtml), [rawHtml]);
+
+  const scrollToAnchor = (id) => {
+    if (!id) return;
+    // CSS.escape handles ids with special chars
+    const target = contentRef.current?.querySelector(`#${CSS.escape(id)}`);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Optionally update the URL hash (won’t reload)
+      history.replaceState(null, '', `#${id}`);
+    }
+  };
+
 
   const mainClass = cx(
     "reader flex min-h-[100dvh] flex-col",
@@ -66,13 +90,44 @@ export default function DemoReaderPage() {
   return (
     <main className={mainClass}>
       {/* Settings */}
-      <div className="fixed top-25 left-4 -translate-y-1/2 z-50">
-        <ReaderSettingsPopover
-          prefs={prefs}
-          setPref={setPref}
-          closeOnSelect={false}
+      <ActionRail top="7.5rem" left="1rem">
+        <div className="relative">
+          <ReaderSettingsPopover
+            prefs={prefs}
+            setPref={setPref}
+            closeOnSelect={false}
+          />
+        </div>
+
+        <BookmarkButton
+          isBookmarked={!!isBookBookmarked?.('demo-pg1661')}
+          onToggle={() => toggleBookmark?.('demo-pg1661')}
         />
-      </div>
+
+        <AddToListButton
+          bookId="demo-pg1661"
+          lists={getLists()}
+          listsSelected={listsContainingBook('demo-pg1661')}
+          onToggleList={(listId, bookId) => {
+            const selected = listsContainingBook(bookId);
+            // listsContainingBook may return an Array or a Set; handle both safely
+            const isSelected = Array.isArray(selected)
+              ? selected.includes(listId)
+              : Boolean(selected?.has?.(listId));
+
+            if (isSelected) removeBookFromList(listId, bookId);
+            else addBookToList(listId, bookId);
+          }} 
+          onCreateList={(name, bookId) => {
+            createListAndAdd(name, bookId);
+          }}
+        />
+        <TocButton
+          items={tocItems}
+          onNavigate={scrollToAnchor}
+        />
+      </ActionRail>
+
 
       <header className="mx-auto w-full max-w-[var(--reader-max)] px-4 pt-6 text-center">
         <div className="relative mx-auto aspect-[2/3] w-40 sm:w-48 md:w-56 lg:w-64 xl:w-72 overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
@@ -96,6 +151,7 @@ export default function DemoReaderPage() {
         <aside className="w-[clamp(0px,8vw,240px)]" aria-hidden="true" />
         <article
           className="reader-content mx-auto flex-1 overflow-auto px-4 py-4"
+          ref={contentRef}
           aria-live="polite"
           // The CSS in globals.css neutralizes PG inline black/white colors
           dangerouslySetInnerHTML={{ __html: loading ? '' : safeHtml }}
