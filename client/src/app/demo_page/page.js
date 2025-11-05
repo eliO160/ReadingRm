@@ -8,6 +8,7 @@ import ActionRail from '@/components/layout/ActionRail';
 import ReaderSettingsPopover from '@/components/customizations/ReaderSettingsPopover';
 import BookmarkButton from '@/components/user_actions/Bookmark';
 import AddToListButton from '@/components/user_actions/AddToListButton';
+import FullScreenButton from '@/components/user_actions/FullScreenButton';
 import TocButton from '@/components/user_actions/TocButton';
 import { parseTocFromHtml } from '@/components/toc/parseTocfromHtml';
 
@@ -26,6 +27,7 @@ export default function DemoReaderPage() {
   const [rawHtml, setRawHtml] = useState('');
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const contentRef = useRef(null);
   
   // Load demo HTML from /public
@@ -72,7 +74,7 @@ export default function DemoReaderPage() {
 
   const mainClass = cx(
     "reader flex min-h-[100dvh] flex-col",
-    mode === 'light' && "reader--light reader--use-site-bg",
+    mode === 'light' && "reader--light",
     mode === 'sepia' && "reader--sepia",
     mode === 'dark'  && "reader--dark",
     mode === 'paper' && 'reader--paper',
@@ -88,7 +90,12 @@ export default function DemoReaderPage() {
   );
 
   return (
-    <main className={mainClass}>
+    <main 
+      className={cx(
+        mainClass,
+        isFullscreen ? "" : "m/-16 sm:ml-15",
+        "bg-[color:var(--bg)]"
+        )}>
       {/* Settings */}
       <ActionRail top="7.5rem" left="1rem">
         <div className="relative">
@@ -126,10 +133,14 @@ export default function DemoReaderPage() {
           items={tocItems}
           onNavigate={scrollToAnchor}
         />
+        <FullScreenButton 
+          onChange={setIsFullscreen}
+          size={22}
+        />
       </ActionRail>
 
 
-      <header className="mx-auto w-full max-w-[var(--reader-max)] px-4 pt-6 text-center">
+      <header className={cx("mx-auto w-full max-w-[var(--reader-max)] px-4 pt-6 text-center", isFullscreen && "hidden")}>
         <div className="relative mx-auto aspect-[2/3] w-40 sm:w-48 md:w-56 lg:w-64 xl:w-72 overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
           <Image
             src="/demo/cover.jpg"
@@ -148,15 +159,20 @@ export default function DemoReaderPage() {
 
       {/* 3-column layout */}
       <section className="flex min-h-0 flex-1">
-        <aside className="w-[clamp(0px,8vw,240px)]" aria-hidden="true" />
+        <aside className={cx("w-[clamp(0px,8vw,240px)]", isFullscreen && "hidden")} aria-hidden="true" />
         <article
-          className="reader-content mx-auto flex-1 overflow-auto px-4 py-4"
+          className={cx(
+            "reader-content mx-auto overflow-auto",
+            isFullscreen
+              ? "w-screen max-w-none px-6 sm:px-10 py-6 min-h-[100dvh]"
+              : "w-full max-w-[var(--reader-max)] px-4 py-4"
+          )}
           ref={contentRef}
           aria-live="polite"
           // The CSS in globals.css neutralizes PG inline black/white colors
           dangerouslySetInnerHTML={{ __html: loading ? '' : safeHtml }}
         />
-        <div className="w-[clamp(0px,8vw,240px)]" aria-hidden="true" />
+        <div className={cx("w-[clamp(0px,8vw,240px)]", isFullscreen && "hidden")} aria-hidden="true" />
       </section>
 
       {loading && <p className="px-4 py-3 text-center text-neutral-500">Loading…</p>}
