@@ -159,7 +159,41 @@ p {
 @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
 
 /* ----------------------------- */
-/* 6) READER STYLES (shared by Reader pages + demo)
+/* NAV LINK (used by header items)
+/* ----------------------------- */
+
+/* Base styles shared by both <a> and <button> items in the navbar */
+:is(a.nav-link, button.nav-link) {
+  /* reset so <button> looks like <a> */
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;                     /* start clean, then add inline pad below */
+  font: inherit;
+  line-height: inherit;
+  color: var(--link);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding-inline: 0.125rem;       /* ~ Tailwind px-0.5 */
+  cursor: pointer;
+}
+
+:is(a.nav-link, button.nav-link):hover {
+  color: var(--link-hover);
+}
+
+/* Active/“current page” look */
+.nav-link--active {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  color: var(--link);
+}
+
+/* ----------------------------- */
+/* READER STYLES (shared by Reader pages + demo)
 /* ----------------------------- */
 
 /* Container establishes reader variables + paints bg/fg */

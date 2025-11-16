@@ -16,12 +16,7 @@ export default function PrimaryNav({ links, className = '', onItemClick }) {
             href={href}
             aria-current={isActive ? 'page' : undefined}
             onClick={onItemClick}
-            className={
-              "px-0.5 " +
-              (isActive
-                ? "font-semibold text-[color:var(--link)] underline underline-offset-4"
-                : "hover:text-[color:var(--link-hover)]")
-            }
+            className={`nav-link ${isActive ? 'nav-link--active' : ''}`} 
           >
             {label}
           </Link>
