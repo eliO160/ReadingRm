@@ -1,15 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import SearchBar from './SearchBar';
 import PrimaryNav from '@/components/PrimaryNav';
 import { primaryLinks } from '@/config/navConfig';
+import { useAuth } from '@/components/auth/AuthProvider';
+import SignOutButton from './auth/SignOutButton';
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
+  const isAuthed = !!user;
+
+  // Hide the /auth link when signed in
+  const linksWithoutAuth = useMemo(
+    () => primaryLinks.filter(l => l.href !== '/auth'),
+    []
+  );
 
   return (
     <header
@@ -46,7 +56,10 @@ export default function SiteHeader() {
 
           {/* Desktop nav */}
           <div className="hidden sm:flex items-center gap-6">
-            <PrimaryNav links={primaryLinks} />
+            <PrimaryNav links={isAuthed ? linksWithoutAuth : primaryLinks} />
+            {isAuthed ? (
+              <SignOutButton />
+            ) : null}
             <ThemeToggle />
           </div>
 
@@ -75,11 +88,12 @@ export default function SiteHeader() {
             </div>
             <div className="flex flex-col px-1">
               <PrimaryNav
-                links={primaryLinks}
+                links={isAuthed ? linksWithoutAuth : primaryLinks}
                 className="flex flex-col"
                 onItemClick={() => setOpen(false)}
               />
-              <div className="py-2">
+              <div className="py-2 flex items-center gap-4">
+                {isAuthed ? <SignOutButton /> : null}
                 <ThemeToggle />
               </div>
             </div>
