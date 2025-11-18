@@ -17,6 +17,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
 import bookRoutes from './routes/books.js';
+import bookmarkRoutes from './routes/bookmarks.js';
 import { verifyFirebaseToken } from './auth.js';
 
 import User from './models/User.js';
@@ -34,6 +35,8 @@ app.get('/', (_req, res) => res.send('API is working'));
 
 // Public books routes (your existing router)
 app.use('/api/books', bookRoutes);
+
+app.use('/api/bookmarks', bookmarkRoutes);
 
 // -------------------- PROTECTED ROUTES --------------------
 const protectedRouter = express.Router();
