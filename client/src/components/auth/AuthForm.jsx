@@ -35,7 +35,7 @@ export default function AuthForm({ defaultMode = 'signin', onSuccess }) {
 
       // call your backend to upsert the user (creates User doc in Mongo)
       const token = await cred.user.getIdToken();
-      await api('/me', { token });
+      await api('/api/me', { token });
 
       onSuccess?.(cred.user);
     } catch (err) {

@@ -21,8 +21,6 @@ import bookmarkRoutes from './routes/bookmarks.js';
 import { verifyFirebaseToken } from './auth.js';
 
 import User from './models/User.js';
-import Bookmark from './models/Bookmark.js';
-
 const app = express();
 
 app.use(cors({ origin: process.env.FRONTEND_ORIGIN || 'http://localhost:3000', credentials: true }));
@@ -33,12 +31,11 @@ app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 500 }));
 // Healthcheck (public)
 app.get('/', (_req, res) => res.send('API is working'));
 
-// Public books routes (your existing router)
+// Public routes 
 app.use('/api/books', bookRoutes);
-
 app.use('/api/bookmarks', bookmarkRoutes);
 
-// -------------------- PROTECTED ROUTES --------------------
+// Protected routes
 const protectedRouter = express.Router();
 protectedRouter.use(verifyFirebaseToken);
 
@@ -56,31 +53,7 @@ protectedRouter.get('/me', async (req, res) => {
   res.json({ uid: user.uid, email: user.email, displayName: user.displayName, photoURL: user.photoURL });
 });
 
-// Bookmarks — list
-protectedRouter.get('/bookmarks', async (req, res) => {
-  const items = await Bookmark.find({ uid: req.user.uid }).lean();
-  res.json(items);
-});
-
-// Bookmarks — add (idempotent)
-protectedRouter.post('/bookmarks', async (req, res) => {
-  const { bookId } = req.body;
-  if (!bookId) return res.status(400).json({ error: 'bookId required' });
-  const doc = await Bookmark.findOneAndUpdate(
-    { uid: req.user.uid, bookId },
-    { $setOnInsert: { uid: req.user.uid, bookId } },
-    { new: true, upsert: true }
-  );
-  res.json(doc);
-});
-
-// Bookmarks — delete
-protectedRouter.delete('/bookmarks/:bookId', async (req, res) => {
-  await Bookmark.deleteOne({ uid: req.user.uid, bookId: req.params.bookId });
-  res.json({ ok: true });
-});
-
 // Mount protected
 app.use('/api', protectedRouter);
-// ----------------------------------------------------------
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
