@@ -1,32 +1,42 @@
-//reader page
+// reader page
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import DOMPurify from 'isomorphic-dompurify';
 import Image from 'next/image';
 import { getBestCoverUrl } from '@/lib/covers';
 import { useReaderPrefs } from '@/components/customizations/useReaderPrefs';
-import ReaderSettingsPopover from '@/components/customizations/ReaderSettingsPopover';
+import ActionRail from '@/components/layout/ActionRail';
 
 const cx = (...x) => x.filter(Boolean).join(' ');
 
 export default function BookReaderPage() {
   const { id } = useParams();
-  const { prefs, setPref } = useReaderPrefs();
+
+  // Pull the full prefs API so the rail can reuse it
+  const { 
+    prefs, setPref,
+    isBookBookmarked, toggleBookmark,
+    getLists, listsContainingBook,
+    addBookToList, removeBookFromList, createListAndAdd,
+  } = useReaderPrefs();
   const { size, mode, width, font } = prefs;
 
   const [rawHtml, setRawHtml] = useState('');
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
 
-  //hold book metadata for title/author/cover
   const [book, setBook] = useState(null);
   const [metaError, setMetaError] = useState(null);
 
+  // NEW: fullscreen + contentRef for ToC scrolling
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const contentRef = useRef(null);
+
   useEffect(() => {
     let alive = true;
-    //Fetch html
+    // Fetch html
     (async () => {
       try {
         setLoading(true);
@@ -42,19 +52,18 @@ export default function BookReaderPage() {
       }
     })();
 
-    // Fetch book metadata (Gutendex details) — used for title/author/cover
+    // Fetch metadata
     (async () => {
       try {
         setMetaError(null);
         const res = await fetch(`/api/books/${id}`, { cache: 'force-cache' });
         if (!res.ok) throw new Error(`Meta fetch failed: ${res.status}`);
         const data = await res.json();
-        // Gutendex returns { results: [...] } for searches and { ... } for detail.
         const item = data?.results ? data.results[0] : data;
         if (alive) setBook(item || null);
       } catch (e) {
         if (alive) setMetaError(e.message || 'Failed to load metadata');
-        if (alive) setBook({ id: Number(id) }); // minimal fallback so PG cover still works
+        if (alive) setBook({ id: Number(id) });
       }
     })();
 
@@ -63,9 +72,9 @@ export default function BookReaderPage() {
 
   const safeHtml = useMemo(
     () => DOMPurify.sanitize(rawHtml, {
-        USE_PROFILES: { html: true },
-        FORBID_TAGS: ['script', 'style', 'link'],
-      }),
+      USE_PROFILES: { html: true },
+      FORBID_TAGS: ['script', 'style', 'link'],
+    }),
     [rawHtml]
   );
 
@@ -91,21 +100,32 @@ export default function BookReaderPage() {
   );
 
   return (
-    <main
-      className={mainClass}>
-      {/* Settings gear */}
-      <div className="fixed top-25 left-4 -translate-y-1/2 z-50">
-        <ReaderSettingsPopover
-          prefs={prefs}
-          setPref={setPref}
-          closeOnSelect={false}  // set true to auto-close after each click
-        />
-      </div>
+    <main className={cx(mainClass, isFullscreen ? "" : "sm:ml-15", "bg-[color:var(--bg)]")}>
+      {/* Reusable Action Rail */}
+      <ActionRail
+        top="7.5rem"
+        left="1rem"
+        bookId={String(id)}
+        tocHtml={rawHtml}
+        contentRef={contentRef}
+        onFullscreenChange={setIsFullscreen}
+        // Inject the page’s single source of truth:
+        prefs={prefs}
+        setPref={setPref}
+        isBookBookmarked={isBookBookmarked}
+        toggleBookmark={toggleBookmark}
+        getLists={getLists}
+        listsContainingBook={listsContainingBook}
+        addBookToList={addBookToList}
+        removeBookFromList={removeBookFromList}
+        createListAndAdd={createListAndAdd}
+      />
 
       {/* Reader header with cover */}
-      <header className="mx-auto w-full max-w-[var(--reader-max)] px-4 pt-6 text-center">
-
-        {/* COVER — size controlled by this container */}
+      <header className={cx(
+        "mx-auto w-full max-w-[var(--reader-max)] px-4 pt-6 text-center",
+        isFullscreen && "hidden"
+      )}>
         <div className="relative mx-auto aspect-[2/3] w-40 sm:w-48 md:w-56 lg:w-64 xl:w-72 overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
           {coverUrl ? (
             <Image
@@ -122,22 +142,25 @@ export default function BookReaderPage() {
             </div>
           )}
         </div>
-
-        {/* TITLE + AUTHOR */}
         <h1 className="mt-4 text-2xl sm:text-3xl font-bold leading-tight">{title}</h1>
         <p className="mt-1 text-base sm:text-lg opacity-80">{authors}</p>
       </header>
 
-
-      {/* 3-column flex: left gutter / reader / right gutter */}
+      {/* 3-column layout */}
       <section className="flex min-h-0 flex-1">
-        <aside className="w-[clamp(0px,8vw,240px)]" aria-hidden="true" />
+        <aside className={cx("w-[clamp(0px,8vw,240px)]", isFullscreen && "hidden")} aria-hidden="true" />
         <article
-          className="reader-content mx-auto flex-1 overflow-auto px-4 py-4"
+          className={cx(
+            "reader-content mx-auto overflow-auto",
+            isFullscreen
+              ? "w-screen max-w-none px-6 sm:px-10 py-6 min-h-[100dvh]"
+              : "w-full max-w-[var(--reader-max)] px-4 py-4"
+          )}
+          ref={contentRef}
           aria-live="polite"
           dangerouslySetInnerHTML={{ __html: loading ? '' : safeHtml }}
         />
-        <div className="w-[clamp(0px,8vw,240px)]" aria-hidden="true" />
+        <div className={cx("w-[clamp(0px,8vw,240px)]", isFullscreen && "hidden")} aria-hidden="true" />
       </section>
 
       {loading && <p className="px-4 py-3 text-center text-neutral-500">Loading…</p>}
