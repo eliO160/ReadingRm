@@ -8,20 +8,22 @@ import Image from 'next/image';
 import { getBestCoverUrl } from '@/lib/covers';
 import { useReaderPrefs } from '@/components/customizations/useReaderPrefs';
 import ActionRail from '@/components/layout/ActionRail';
+import { useBookmark } from '@/hooks/useBookmark';
 
 const cx = (...x) => x.filter(Boolean).join(' ');
 
 export default function BookReaderPage() {
   const { id } = useParams();
+  const bookId = String(id);
 
-  // Pull the full prefs API so the rail can reuse it
-  const { 
-    prefs, setPref,
-    isBookBookmarked, toggleBookmark,
-    getLists, listsContainingBook,
-    addBookToList, removeBookFromList, createListAndAdd,
+  // Pull only prefs from your ReaderPrefs hook (bookmarking will come from useBookmark)
+  const { prefs, setPref,
+    getLists, listsContainingBook, addBookToList, removeBookFromList, createListAndAdd
   } = useReaderPrefs();
   const { size, mode, width, font } = prefs;
+
+  // 🔐 NEW: useBookmark provides current status + toggle for THIS book
+  const { bookmarked, toggle, loading: bmLoading, error: bmError } = useBookmark(bookId);
 
   const [rawHtml, setRawHtml] = useState('');
   const [loading, setLoading] = useState(true);
@@ -30,12 +32,13 @@ export default function BookReaderPage() {
   const [book, setBook] = useState(null);
   const [metaError, setMetaError] = useState(null);
 
-  // NEW: fullscreen + contentRef for ToC scrolling
+  // fullscreen + contentRef for ToC scrolling
   const [isFullscreen, setIsFullscreen] = useState(false);
   const contentRef = useRef(null);
 
   useEffect(() => {
     let alive = true;
+
     // Fetch html
     (async () => {
       try {
@@ -105,15 +108,20 @@ export default function BookReaderPage() {
       <ActionRail
         top="7.5rem"
         left="1rem"
-        bookId={String(id)}
+        bookId={bookId}
         tocHtml={rawHtml}
         contentRef={contentRef}
         onFullscreenChange={setIsFullscreen}
-        // Inject the page’s single source of truth:
+
+        // Inject prefs so the gear works 
         prefs={prefs}
         setPref={setPref}
-        isBookBookmarked={isBookBookmarked}
-        toggleBookmark={toggleBookmark}
+
+        // OVERRIDE bookmark wiring using useBookmark for THIS page/book 
+        isBookBookmarked={(id) => id === bookId ? bookmarked : false}
+        toggleBookmark={(id) => { if (id === bookId) return toggle(); }}
+
+        //Lists/Toc/Fullscreen as you already had 
         getLists={getLists}
         listsContainingBook={listsContainingBook}
         addBookToList={addBookToList}
@@ -165,6 +173,22 @@ export default function BookReaderPage() {
 
       {loading && <p className="px-4 py-3 text-center text-neutral-500">Loading…</p>}
       {err && <p className="px-4 py-3 text-center text-red-600">Error: {err}</p>}
+
+      {/* Optional UX for bookmark state/errors */}
+      {bmLoading && (
+        <div className="fixed bottom-4 left-4 text-xs bg-neutral-100 dark:bg-neutral-800 px-3 py-2 rounded">
+          Checking bookmark…
+        </div>
+      )}
+      {bmError?.code === 'auth/no-user' ? (
+        <div className="fixed bottom-4 left-4 text-xs bg-yellow-100 text-yellow-900 px-3 py-2 rounded">
+          Sign in to use bookmarks.
+        </div>
+      ) : bmError ? (
+        <div className="fixed bottom-4 left-4 text-xs bg-red-100 text-red-900 px-3 py-2 rounded">
+          Bookmark error: {bmError.message}
+        </div>
+      ) : null}
     </main>
   );
 }
