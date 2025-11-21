@@ -18,6 +18,8 @@ import rateLimit from 'express-rate-limit';
 
 import bookRoutes from './routes/books.js';
 import bookmarkRoutes from './routes/bookmarks.js';
+import prefsRouter from './routes/prefs.js';
+import listsRouter from './routes/lists.js';
 import { verifyFirebaseToken } from './auth.js';
 
 import User from './models/User.js';
@@ -34,6 +36,9 @@ app.get('/', (_req, res) => res.send('API is working'));
 // Public routes 
 app.use('/api/books', bookRoutes);
 app.use('/api/bookmarks', bookmarkRoutes);
+app.use('/api/prefs', prefsRouter);
+app.use('/api/lists', listsRouter);
+
 
 // Protected routes
 const protectedRouter = express.Router();
