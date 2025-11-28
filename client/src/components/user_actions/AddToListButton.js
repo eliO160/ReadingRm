@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ListPlus, Check } from 'lucide-react';
 import PopoverPanel from '../ui/PopoverPanel';
 
@@ -14,6 +14,13 @@ export default function AddToListButton({
 }) {
   const [open, setOpen] = useState(false);
   const [newListName, setNewListName] = useState('');
+
+  // Normalize listsSelected to a Set for safety
+  const selectedSet = useMemo(() => {
+    if (listsSelected instanceof Set) return listsSelected;
+    if (Array.isArray(listsSelected)) return new Set(listsSelected);
+    return new Set();
+  }, [listsSelected]);
 
   const handleCreate = () => {
     const name = newListName.trim();
@@ -54,7 +61,7 @@ export default function AddToListButton({
             <li className="text-sm opacity-70 py-2">You don’t have any lists yet.</li>
           )}
           {lists.map((l) => {
-            const checked = listsSelected.has(l.id);
+            const checked = selectedSet.has(l.id);
             return (
               <li key={l.id} className="py-1">
                 <button
@@ -119,7 +126,7 @@ export default function AddToListButton({
             Create & Add
           </button>
         </div>
-    </PopoverPanel>
+      </PopoverPanel>
     </div>
   );
 }
