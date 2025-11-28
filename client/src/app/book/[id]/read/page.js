@@ -9,6 +9,7 @@ import { getBestCoverUrl } from '@/lib/covers';
 import { useReaderPrefs } from '@/components/customizations/useReaderPrefs';
 import ActionRail from '@/components/layout/ActionRail';
 import { useBookmark } from '@/hooks/useBookmark';
+import { useLists } from '@/hooks/useLists';
 
 const cx = (...x) => x.filter(Boolean).join(' ');
 
@@ -17,13 +18,16 @@ export default function BookReaderPage() {
   const bookId = String(id);
 
   // Pull only prefs from your ReaderPrefs hook (bookmarking will come from useBookmark)
-  const { prefs, setPref,
-    getLists, listsContainingBook, addBookToList, removeBookFromList, createListAndAdd
-  } = useReaderPrefs();
+  const { prefs, setPref } = useReaderPrefs();
   const { size, mode, width, font } = prefs;
-
-  // 🔐 NEW: useBookmark provides current status + toggle for THIS book
   const { bookmarked, toggle, loading: bmLoading, error: bmError } = useBookmark(bookId);
+  const {
+    getLists, 
+    listsContainingBook,
+    addBookToList,
+    removeBookFromList,
+    createListAndAdd,
+  } = useLists();
 
   const [rawHtml, setRawHtml] = useState('');
   const [loading, setLoading] = useState(true);
@@ -121,12 +125,12 @@ export default function BookReaderPage() {
         isBookBookmarked={(id) => id === bookId ? bookmarked : false}
         toggleBookmark={(id) => { if (id === bookId) return toggle(); }}
 
-        //Lists/Toc/Fullscreen as you already had 
-        // getLists={getLists}
-        // listsContainingBook={listsContainingBook}
-        // addBookToList={addBookToList}
-        // removeBookFromList={removeBookFromList}
-        // createListAndAdd={createListAndAdd}
+        //lists
+        getLists={getLists}
+        listsContainingBook={listsContainingBook}
+        addBookToList={addBookToList}
+        removeBookFromList={removeBookFromList}
+        createListAndAdd={createListAndAdd}
       />
 
       {/* Reader header with cover */}
