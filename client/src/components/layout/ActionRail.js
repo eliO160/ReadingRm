@@ -19,7 +19,7 @@ export default function ActionRail({
   tocItems,
   contentRef,
 
-  // NEW: allow state injection from the page
+  // from page (optional)
   prefs,
   setPref,
   isBookBookmarked,
@@ -35,21 +35,23 @@ export default function ActionRail({
   extraAfter = null,
   onFullscreenChange,
 }) {
-  // If not injected, fall back to internal hook (useful for simple pages)
-  const injected = prefs && setPref;
-  const hook = usePrefsHook();
-  const api = {
-    prefs: injected ? prefs : hook.prefs,
-    setPref: injected ? setPref : hook.setPref,
-    isBookBookmarked: injected ? isBookBookmarked : hook.isBookBookmarked,
-    toggleBookmark: injected ? toggleBookmark : hook.toggleBookmark,
-    getLists: injected ? getLists : hook.getLists,
-    listsContainingBook: injected ? listsContainingBook : hook.listsContainingBook,
-    addBookToList: injected ? addBookToList : hook.addBookToList,
-    removeBookFromList: injected ? removeBookFromList : hook.removeBookFromList,
-    createListAndAdd: injected ? createListAndAdd : hook.createListAndAdd,
-  };
+  // ===== 1) Prefs: allow injection, otherwise fall back to hook =====
+  const injectedPrefs = prefs && setPref;
+  const prefsHook = usePrefsHook();
 
+  const effectivePrefs = injectedPrefs ? prefs : prefsHook.prefs;
+  const effectiveSetPref = injectedPrefs ? setPref : prefsHook.setPref;
+
+  // ===== 2) Do we even have lists wired? =====
+  const hasListsApi = Boolean(
+    getLists &&
+    listsContainingBook &&
+    addBookToList &&
+    removeBookFromList &&
+    createListAndAdd
+  );
+
+  // ===== 3) ToC parsing + fullscreen =====
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const computedTocItems = useMemo(() => {
@@ -75,43 +77,58 @@ export default function ActionRail({
     onFullscreenChange?.(val);
   };
 
+  // ===== 4) Renderers =====
   const renderers = {
     settings: () => (
       <div className="relative">
         <ReaderSettingsPopover
-          prefs={api.prefs}
-          setPref={api.setPref}
+          prefs={effectivePrefs}
+          setPref={effectiveSetPref}
           closeOnSelect={false}
-          // Ensure panel sits above page content
           panelClassName="z-[60]"
         />
       </div>
     ),
-    bookmark: () => (
-      <BookmarkButton
-        isBookmarked={!!api.isBookBookmarked?.(bookId)}
-        onToggle={() => api.toggleBookmark?.(bookId)}
-      />
-    ),
-    lists: () => (
-      <AddToListButton
-        bookId={bookId}
-        lists={api.getLists()}
-        listsSelected={api.listsContainingBook(bookId)}
-        onToggleList={(listId, bId) => {
-          const selected = api.listsContainingBook(bId);
-          const isSelected = Array.isArray(selected)
-            ? selected.includes(listId)
-            : Boolean(selected?.has?.(listId));
-          if (isSelected) api.removeBookFromList(listId, bId);
-          else api.addBookToList(listId, bId);
-        }}
-        onCreateList={(name, bId) => api.createListAndAdd(name, bId)}
-      />
-    ),
+
+    bookmark: () => {
+      if (!bookId || !toggleBookmark) return null;
+      const isMarked = !!isBookBookmarked?.(bookId);
+      return (
+        <BookmarkButton
+          isBookmarked={isMarked}
+          onToggle={() => toggleBookmark?.(bookId)}
+        />
+      );
+    },
+
+    lists: () => {
+      if (!hasListsApi || !bookId) return null;
+      const lists = getLists();
+      const selected = listsContainingBook(bookId);
+
+      return (
+        <AddToListButton
+          bookId={bookId}
+          lists={lists}
+          listsSelected={selected}
+          onToggleList={(listId, bId) => {
+            const selectedForBook = listsContainingBook(bId);
+            const isSelected = Array.isArray(selectedForBook)
+              ? selectedForBook.includes(listId)
+              : Boolean(selectedForBook?.has?.(listId));
+
+            if (isSelected) removeBookFromList(listId, bId);
+            else addBookToList(listId, bId);
+          }}
+          onCreateList={(name, bId) => createListAndAdd(name, bId)}
+        />
+      );
+    },
+
     toc: () => (
       <TocButton items={computedTocItems} onNavigate={scrollToAnchor} />
     ),
+
     fullscreen: () => (
       <FullScreenButton onChange={handleFullscreen} size={22} />
     ),
@@ -124,7 +141,9 @@ export default function ActionRail({
       aria-label={ariaLabel}
     >
       {extraBefore}
-      {items.map(k => <div key={k}>{renderers[k]?.()}</div>)}
+      {items.map((k) => (
+        <div key={k}>{renderers[k]?.()}</div>
+      ))}
       {extraAfter}
     </div>
   );

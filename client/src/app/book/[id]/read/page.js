@@ -122,11 +122,11 @@ export default function BookReaderPage() {
         toggleBookmark={(id) => { if (id === bookId) return toggle(); }}
 
         //Lists/Toc/Fullscreen as you already had 
-        getLists={getLists}
-        listsContainingBook={listsContainingBook}
-        addBookToList={addBookToList}
-        removeBookFromList={removeBookFromList}
-        createListAndAdd={createListAndAdd}
+        // getLists={getLists}
+        // listsContainingBook={listsContainingBook}
+        // addBookToList={addBookToList}
+        // removeBookFromList={removeBookFromList}
+        // createListAndAdd={createListAndAdd}
       />
 
       {/* Reader header with cover */}

@@ -1,146 +1,93 @@
-//state manager for reader's UI settings. Persisted in localStorage.
-"use client";
-import { useEffect, useState } from 'react';
+'use client';
 
-const DEFAULTS = {
-  size: 'M',       // S | M | L
-  mode: 'light',   // light | sepia | dark
-  width: 'M',      // S | M | L  (reader max width)
-  font: 'serif',   // serif | sans | dyslexic
-  bookmarks: {},
-  lists: {},
-  listOrder: [],
-};
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { apiAuth } from '@/lib/apiAuth';
+
+const DEFAULTS = { mode: 'light', size: 'md', width: 'normal', font: 'serif' };
 
 export function useReaderPrefs() {
   const [prefs, setPrefs] = useState(DEFAULTS);
+  const [loading, setLoading] = useState(true);
 
+  const auth = useMemo(() => getAuth(), []);
+  const isSaving = useRef(false);
+  const lastServerSnapshot = useRef(null);
+  const debTimer = useRef(null);
+
+  // Apply theme class to <html> whenever mode changes
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('reader:prefs') || '{}');
-      setPrefs({ 
-        ...DEFAULTS, 
-        ...saved, 
-        bookmarks: saved.bookmarks || {},
-        lists: saved.lists || {},
-        listOrder: saved.listOrder || [],
-      });
-    } catch {}
+    if (typeof document === 'undefined') return;
+    const el = document.documentElement;
+    if (prefs.mode === 'dark') el.classList.add('dark');
+    else el.classList.remove('dark');
+  }, [prefs.mode]);
+
+  // Load server prefs when auth state changes
+  useEffect(() => {
+    setLoading(true);
+
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        // logged out → use defaults (you can also load localStorage here if you want)
+        lastServerSnapshot.current = null;
+        setPrefs(DEFAULTS);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const server = await apiAuth('/api/prefs');
+        lastServerSnapshot.current = server;
+        setPrefs((prev) => ({ ...prev, ...server })); // merge server over defaults/current
+      } catch (e) {
+        console.error('load prefs failed', e);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    return () => unsub();
+  }, [auth]);
+
+  // Debounced save to server for authenticated users
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user) return;                // only persist if logged in
+    if (isSaving.current) return;
+
+    if (shallowEqual(prefs, lastServerSnapshot.current)) return; // no change vs server
+
+    clearTimeout(debTimer.current);
+    debTimer.current = setTimeout(async () => {
+      try {
+        isSaving.current = true;
+        const saved = await apiAuth('/api/prefs', {
+          method: 'PATCH',
+          body: { prefs },
+        });
+        lastServerSnapshot.current = saved;
+      } catch (e) {
+        console.error('save prefs failed', e);
+      } finally {
+        isSaving.current = false;
+      }
+    }, 300);
+
+    return () => clearTimeout(debTimer.current);
+  }, [prefs, auth]);
+
+  const setPref = useCallback((key, value) => {
+    setPrefs((prev) => (prev[key] === value ? prev : { ...prev, [key]: value }));
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('reader:prefs', JSON.stringify(prefs));
-  }, [prefs]);
+  return { prefs, setPref, loading };
+}
 
-  const setPref = (key, value) => setPrefs(p => ({ ...p, [key]: value }));
-
-  const isBookBookmarked = (bookId) => {
-    if (!bookId) return false;
-    return !!prefs.bookmarks?.[bookId];
-  };
-
-  const toggleBookmark = (bookId) => {
-    if (!bookId) return;
-    setPrefs(prev => {
-      const next = { ...prev, bookmarks: { ...(prev.bookmarks || {}) } };
-      if (next.bookmarks[bookId]) {
-        delete next.bookmarks[bookId];
-      } else {
-        next.bookmarks[bookId] = true;
-      }
-      return next;
-    });
-  };
-
-  const getLists = () => (prefs.listOrder || []).map(id => prefs.lists[id]).filter(Boolean);
-
-  const isInList = (listId, bookId) => {
-    const list = prefs.lists[listId];
-    if (!list) return false;
-    return list.items.includes(bookId);
-  };
-
-  const addList = (name) => {
-    const id = `list:${Date.now().toString(36)}:${Math.random().toString(36).slice(2,6)}`;
-    const entry = { id, name: name?.trim() || 'Untitled', items: [], createdAt: Date.now() };
-    setPrefs(prev => ({
-      ...prev,
-      lists: { ...prev.lists, [id]: entry },
-      listOrder: [...(prev.listOrder || []), id],
-    }));
-    return id;
-  };
-
-  const renameList = (listId, nextName) => {
-    setPrefs(prev => {
-      const list = prev.lists[listId];
-      if (!list) return prev;
-      return {
-        ...prev,
-        lists: { ...prev.lists, [listId]: { ...list, name: nextName?.trim() || list.name } },
-      };
-    });
-  };
-
-  const deleteList = (listId) => {
-    setPrefs(prev => {
-      if (!prev.lists[listId]) return prev;
-      const { [listId]: _, ...rest } = prev.lists;
-      return {
-        ...prev,
-        lists: rest,
-        listOrder: (prev.listOrder || []).filter(id => id !== listId),
-      };
-    });
-  };
-
-  const addBookToList = (listId, bookId) => {
-    setPrefs(prev => {
-      const list = prev.lists[listId];
-      if (!list || list.items.includes(bookId)) return prev;
-      return {
-        ...prev,
-        lists: {
-          ...prev.lists,
-          [listId]: { ...list, items: [...list.items, bookId] },
-        },
-      };
-    });
-  };
-
-  const removeBookFromList = (listId, bookId) => {
-    setPrefs(prev => {
-      const list = prev.lists[listId];
-      if (!list || !list.items.includes(bookId)) return prev;
-      return {
-        ...prev,
-        lists: {
-          ...prev.lists,
-          [listId]: { ...list, items: list.items.filter(id => id !== bookId) },
-        },
-      };
-    });
-  };
-
-  const createListAndAdd = (name, bookId) => {
-    const id = addList(name);
-    addBookToList(id, bookId);
-    return id;
-  };
-
-  const listsContainingBook = (bookId) => {
-    const out = new Set();
-    for (const id of prefs.listOrder || []) {
-      const l = prefs.lists[id];
-      if (l?.items?.includes(bookId)) out.add(id);
-    }
-    return out;
-  };
-
-  return { 
-    prefs, setPref, 
-    isBookBookmarked, toggleBookmark,
-    getLists, isInList, addList, renameList, deleteList,
-    addBookToList, removeBookFromList, createListAndAdd, listsContainingBook,
-  };
+function shallowEqual(a, b) {
+  if (!a || !b) return false;
+  const ka = Object.keys(a), kb = Object.keys(b);
+  if (ka.length !== kb.length) return false;
+  for (const k of ka) if (a[k] !== b[k]) return false;
+  return true;
 }
