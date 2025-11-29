@@ -89,18 +89,34 @@ export function useLists() {
 
   const addBookToList = useCallback(async (listId, bookId) => {
     if (!user) return;
+      // Guard: if this book is already in that list, bail out
+    const existingList = lists.find((l) => l.id === listId);
+    if (
+      existingList &&
+      existingList.items?.some((it) => it.bookId === String(bookId))
+    ) {
+      // already present; no-op
+      return;
+    }
+
     try {
       const updated = await apiAuth(`/api/lists/${listId}/items`, {
         method: 'POST',
         body: { bookId: String(bookId) },
       });
       const norm = normalizeList(updated);
+
+      if (!norm || !norm.id) {
+        console.warn('addBookToList: normalizeList returned invalid list', updated);
+        return;
+      }
+
       setLists((prev) => prev.map((l) => (l.id === norm.id ? norm : l)));
     } catch (e) {
       console.error('addBookToList failed', e);
       setError(e);
     }
-  }, [user]);
+  }, [user, lists]);
 
   const removeBookFromList = useCallback(async (listId, bookId) => {
     if (!user) return;

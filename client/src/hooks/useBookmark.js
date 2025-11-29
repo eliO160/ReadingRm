@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { api } from '@/lib/api';
+// import { api } from '@/lib/api';      // ❌ no longer needed
 import { apiAuth } from '@/lib/apiAuth';
 
 export function useBookmark(bookId) {
@@ -19,10 +19,12 @@ export function useBookmark(bookId) {
   // Initial load of bookmark status (only call server if logged in)
   useEffect(() => {
     let cancelled = false;
+
     async function run() {
       if (!bookId) return;
       setLoading(true);
       setError(null);
+
       try {
         const user = getAuth().currentUser;
         if (!user) {
@@ -32,8 +34,13 @@ export function useBookmark(bookId) {
           }
           return;
         }
-        const token = await user.getIdToken(false);
-        const data = await api(`/api/bookmarks/${encodeURIComponent(bookId)}`, { token });
+
+        // 🔹 Use apiAuth so token + headers are consistent with your other calls
+        const data = await apiAuth(
+          `/api/bookmarks/${encodeURIComponent(bookId)}`,
+          { method: 'GET' }
+        );
+
         if (!cancelled) {
           setBookmarked(Boolean(data?.bookmarked));
           setLoading(false);
@@ -45,8 +52,11 @@ export function useBookmark(bookId) {
         }
       }
     }
+
     if (authReady) run();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [bookId, authReady]);
 
   const toggle = useCallback(async () => {
@@ -59,7 +69,7 @@ export function useBookmark(bookId) {
     }
 
     setError(null);
-    setBookmarked(prev => !prev); // optimistic
+    setBookmarked((prev) => !prev); // optimistic
 
     try {
       if (!bookmarked) {
@@ -76,7 +86,7 @@ export function useBookmark(bookId) {
       }
     } catch (e) {
       // revert optimism
-      setBookmarked(prev => !prev);
+      setBookmarked((prev) => !prev);
       setError(e);
     }
   }, [bookId, bookmarked]);
