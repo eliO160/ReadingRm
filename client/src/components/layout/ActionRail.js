@@ -5,6 +5,7 @@ import BookmarkButton from '@/components/user_actions/Bookmark';
 import AddToListButton from '@/components/user_actions/AddToListButton';
 import FullScreenButton from '@/components/user_actions/FullScreenButton';
 import TocButton from '@/components/user_actions/TocButton';
+import TopOfPageButton from '@/components/user_actions/TopOfPageButton';
 import { parseTocFromHtml } from '@/components/toc/parseTocfromHtml';
 import { useReaderPrefs as usePrefsHook } from '@/components/customizations/useReaderPrefs';
 
@@ -30,7 +31,7 @@ export default function ActionRail({
   removeBookFromList,
   createListAndAdd,
 
-  items = ['settings','bookmark','lists','toc','fullscreen'],
+  items = ['settings','bookmark','lists','toc','top','fullscreen'],
   extraBefore = null,
   extraAfter = null,
   onFullscreenChange,
@@ -132,6 +133,8 @@ export default function ActionRail({
     fullscreen: () => (
       <FullScreenButton onChange={handleFullscreen} size={22} />
     ),
+
+    top: () => <TopOfPageButton size={22} />,
   };
 
   return (
