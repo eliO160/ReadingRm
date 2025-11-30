@@ -15,14 +15,6 @@ export function useReaderPrefs() {
   const lastServerSnapshot = useRef(null);
   const debTimer = useRef(null);
 
-  // Apply theme class to <html> whenever mode changes
-  useEffect(() => {
-    if (typeof document === 'undefined') return;
-    const el = document.documentElement;
-    if (prefs.mode === 'dark') el.classList.add('dark');
-    else el.classList.remove('dark');
-  }, [prefs.mode]);
-
   // Load server prefs when auth state changes
   useEffect(() => {
     setLoading(true);

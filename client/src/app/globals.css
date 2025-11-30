@@ -199,8 +199,8 @@ p {
 /* Container establishes reader variables + paints bg/fg */
 .reader {
   /* safe defaults; page will add modifiers below */
-  --reader-bg: #ffffff;
-  --reader-fg: #111111;
+  --reader-bg: var(--bg);
+  --reader-fg: var(--fg);
   --reader-size: 18px;
   --reader-max: 70ch;
   --reader-font: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;

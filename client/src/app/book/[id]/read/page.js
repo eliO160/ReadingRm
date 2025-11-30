@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import DOMPurify from 'isomorphic-dompurify';
 import Image from 'next/image';
+
 import { getBestCoverUrl } from '@/lib/covers';
 import { useReaderPrefs } from '@/components/customizations/useReaderPrefs';
 import ActionRail from '@/components/layout/ActionRail';
@@ -17,10 +18,18 @@ export default function BookReaderPage() {
   const { id } = useParams();
   const bookId = String(id);
 
-  // Pull only prefs from your ReaderPrefs hook (bookmarking will come from useBookmark)
-  const { prefs, setPref } = useReaderPrefs();
+  // 1) Reader prefs -- persisted via /api/prefs
+  const { prefs, setPref, loading: prefsLoading } = useReaderPrefs();
   const { size, mode, width, font } = prefs;
-  const { bookmarked, toggle, loading: bmLoading, error: bmError } = useBookmark(bookId);
+
+  // 2) Bookmark and lists hooks per book
+  const {
+    bookmarked,
+    toggle,
+    loading: bmLoading,
+    error: bmError,
+  } = useBookmark(bookId);
+
   const {
     getLists, 
     listsContainingBook,
@@ -29,6 +38,7 @@ export default function BookReaderPage() {
     createListAndAdd,
   } = useLists();
 
+  // 3) Reader content state
   const [rawHtml, setRawHtml] = useState('');
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
@@ -36,14 +46,14 @@ export default function BookReaderPage() {
   const [book, setBook] = useState(null);
   const [metaError, setMetaError] = useState(null);
 
-  // fullscreen + contentRef for ToC scrolling
+  // 4) Fullscreen + ToC scrolling
   const [isFullscreen, setIsFullscreen] = useState(false);
   const contentRef = useRef(null);
 
+    // Fetch book HTML and metadata
   useEffect(() => {
     let alive = true;
 
-    // Fetch html
     (async () => {
       try {
         setLoading(true);
@@ -59,7 +69,6 @@ export default function BookReaderPage() {
       }
     })();
 
-    // Fetch metadata
     (async () => {
       try {
         setMetaError(null);
@@ -69,45 +78,67 @@ export default function BookReaderPage() {
         const item = data?.results ? data.results[0] : data;
         if (alive) setBook(item || null);
       } catch (e) {
-        if (alive) setMetaError(e.message || 'Failed to load metadata');
-        if (alive) setBook({ id: Number(id) });
+        if (alive) {
+          setMetaError(e.message || 'Failed to load metadata');
+          setBook({ id: Number(id) });
+        }
       }
     })();
 
-    return () => { alive = false; };
+    return () => { 
+      alive = false; 
+    };
   }, [id]);
 
   const safeHtml = useMemo(
-    () => DOMPurify.sanitize(rawHtml, {
-      USE_PROFILES: { html: true },
-      FORBID_TAGS: ['script', 'style', 'link'],
-    }),
+    () => 
+      DOMPurify.sanitize(rawHtml, {
+        USE_PROFILES: { html: true },
+        FORBID_TAGS: ['script', 'style', 'link'],
+      }),
     [rawHtml]
   );
 
   const title = book?.title || `Gutenberg #${id}`;
-  const authors = book?.authors?.map(a => a.name).join(', ') || 'Unknown author';
+  const authors = 
+    book?.authors?.map(a => a.name).join(', ') || 'Unknown author';
   const coverUrl = getBestCoverUrl(book || { id: Number(id) }, 'medium');
 
+  // 5) Map prefs -> CSS classes (globals.css)
+  const readerClasses = cx(
+    'reader flex min-h-[100dvh] flex-col',
+  
+    // Only apply per-mode classes once prefs are loaded
+    // Color modes
+    !prefsLoading && (!mode || mode === 'light') && 'reader--light reader--use-site-bg',
+    !prefsLoading && mode === 'sepia' && 'reader--sepia',
+    !prefsLoading && mode === 'dark' && 'reader--dark',
+    !prefsLoading && mode === 'paper' && 'reader--paper',
+    
+    // Sizes (ReaderSettings uses S / M / L)
+    !prefsLoading && size === 'S' && 'reader--size-s',
+    !prefsLoading && size === 'M' && 'reader--size-m',
+    !prefsLoading && size === 'L' && 'reader--size-l',
+
+    // Widths (S / M / L)
+    !prefsLoading && width === 'S' && 'reader--width-s',
+    !prefsLoading && width === 'M' && 'reader--width-m',
+    !prefsLoading && width === 'L' && 'reader--width-l',
+
+    // Fonts
+    !prefsLoading && font === 'serif' && 'reader--font-serif',
+    !prefsLoading && font === 'sans' && 'reader--font-sans',
+    !prefsLoading && font === 'dyslexic' && 'reader--font-dyslexic'
+  );
+
   const mainClass = cx(
-    "reader flex min-h-[100dvh] flex-col",
-    mode === 'light' && "reader--light reader--use-site-bg",
-    mode === 'sepia' && "reader--sepia",
-    mode === 'dark'  && "reader--dark",
-    mode === 'paper' && 'reader--paper',
-    size === 'S' && "reader--size-s",
-    size === 'M' && "reader--size-m",
-    size === 'L' && "reader--size-l",
-    width === 'S' && "reader--width-s",
-    width === 'M' && "reader--width-m",
-    width === 'L' && "reader--width-l",
-    font === 'serif'    && "reader--font-serif",
-    font === 'sans'     && "reader--font-sans",
-    font === 'dyslexic' && "reader--font-dyslexic",
+    readerClasses,
+    isFullscreen ? '' : 'sm:ml-15',
+    'bg-[color:var(--bg)]'
   );
 
   return (
-    <main className={cx(mainClass, isFullscreen ? "" : "sm:ml-15", "bg-[color:var(--bg)]")}>
+    <main className={mainClass}>
       {/* Reusable Action Rail */}
       <ActionRail
         top="7.5rem"
@@ -116,16 +147,13 @@ export default function BookReaderPage() {
         tocHtml={rawHtml}
         contentRef={contentRef}
         onFullscreenChange={setIsFullscreen}
-
-        // Inject prefs so the gear works 
+        // Reader prefs
         prefs={prefs}
         setPref={setPref}
-
-        // OVERRIDE bookmark wiring using useBookmark for THIS page/book 
+        // Bookmarks
         isBookBookmarked={(id) => id === bookId ? bookmarked : false}
         toggleBookmark={(id) => { if (id === bookId) return toggle(); }}
-
-        //lists
+        // Lists
         getLists={getLists}
         listsContainingBook={listsContainingBook}
         addBookToList={addBookToList}
@@ -133,11 +161,13 @@ export default function BookReaderPage() {
         createListAndAdd={createListAndAdd}
       />
 
-      {/* Reader header with cover */}
-      <header className={cx(
-        "mx-auto w-full max-w-[var(--reader-max)] px-4 pt-6 text-center",
-        isFullscreen && "hidden"
-      )}>
+      {/* Header with cover/title/author (hidden in fullscreen) */}
+      <header 
+        className={cx(
+          "mx-auto w-full max-w-[var(--reader-max)] px-4 pt-6 text-center",
+          isFullscreen && "hidden"
+        )}
+      >
         <div className="relative mx-auto aspect-[2/3] w-40 sm:w-48 md:w-56 lg:w-64 xl:w-72 overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
           {coverUrl ? (
             <Image
@@ -154,29 +184,59 @@ export default function BookReaderPage() {
             </div>
           )}
         </div>
-        <h1 className="mt-4 text-2xl sm:text-3xl font-bold leading-tight">{title}</h1>
-        <p className="mt-1 text-base sm:text-lg opacity-80">{authors}</p>
+        <h1 className="mt-4 text-2xl sm:text-3xl font-bold leading-tight">
+          {title}
+        </h1>
+        <p className="mt-1 text-base sm:text-lg opacity-80">
+          {authors}
+        </p>
       </header>
 
-      {/* 3-column layout */}
+      {/* 3-column layout: gutter | content | gutter */}
       <section className="flex min-h-0 flex-1">
-        <aside className={cx("w-[clamp(0px,8vw,240px)]", isFullscreen && "hidden")} aria-hidden="true" />
+        <aside 
+          className={cx(
+            "w-[clamp(0px,8vw,240px)]",
+            isFullscreen && "hidden"
+          )} 
+          aria-hidden="true" 
+        />
+
         <article
+          ref={contentRef}
           className={cx(
             "reader-content mx-auto overflow-auto",
             isFullscreen
               ? "w-screen max-w-none px-6 sm:px-10 py-6 min-h-[100dvh]"
               : "w-full max-w-[var(--reader-max)] px-4 py-4"
           )}
-          ref={contentRef}
           aria-live="polite"
           dangerouslySetInnerHTML={{ __html: loading ? '' : safeHtml }}
         />
-        <div className={cx("w-[clamp(0px,8vw,240px)]", isFullscreen && "hidden")} aria-hidden="true" />
+
+        <div 
+          className={cx(
+            "w-[clamp(0px,8vw,240px)]",
+            isFullscreen && "hidden"
+          )} 
+          aria-hidden="true" 
+        />
       </section>
 
-      {loading && <p className="px-4 py-3 text-center text-neutral-500">Loading…</p>}
-      {err && <p className="px-4 py-3 text-center text-red-600">Error: {err}</p>}
+      {/* Status and errors */}
+      {loading && (
+        <p className="px-4 py-3 text-center text-neutral-500">Loading…</p>
+      )}
+      {err && (
+        <p className="px-4 py-3 text-center text-red-600">
+          Error: {err}
+        </p>
+      )}
+      {metaError && !book?.title && (
+        <p className="px-4 py-3 text-center text-yellow-700">
+          Metadata error: {metaError}
+        </p>
+      )}
 
       {/* Optional UX for bookmark state/errors */}
       {bmLoading && (
