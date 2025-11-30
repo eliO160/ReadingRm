@@ -10,6 +10,7 @@ import { useReaderPrefs } from '@/components/customizations/useReaderPrefs';
 import ActionRail from '@/components/layout/ActionRail';
 import { useBookmark } from '@/hooks/useBookmark';
 import { useLists } from '@/hooks/useLists';
+import { useReadingProgress } from '@/hooks/useReadingProgress';
 
 const cx = (...x) => x.filter(Boolean).join(' ');
 
@@ -88,6 +89,10 @@ export default function BookReaderPage() {
   const title = book?.title || `Gutenberg #${id}`;
   const authors = book?.authors?.map(a => a.name).join(', ') || 'Unknown author';
   const coverUrl = getBestCoverUrl(book || { id: Number(id) }, 'medium');
+
+  //hook that handles restoring and saving scroll progress
+  useReadingProgress({ bookId, rawHtml });
+
 
   const mainClass = cx(
     "reader flex min-h-[100dvh] flex-col",
