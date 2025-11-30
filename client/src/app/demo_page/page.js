@@ -15,14 +15,12 @@ const cx = (...x) => x.filter(Boolean).join(' ');
 
 export default function DemoReaderPage() {
   // 1) Reader visual prefs (same hook as real reader)
-  const { prefs, setPref } = useReaderPrefs();
+  const { prefs, setPref, loading: prefsLoading } = useReaderPrefs();
   const { size, mode, width, font } = prefs;
 
-  // 2) Bookmark hook for this "book"
-  // Assuming your hook signature is useBookmark(bookId)
+  // 2) Bookmark hook
   const { bookmarked, toggle: toggleDemoBookmark } = useBookmark(DEMO_BOOK_ID);
 
-  // Adapt to ActionRail's expected API:
   const isBookBookmarked = (bookId) =>
     bookId === DEMO_BOOK_ID ? Boolean(bookmarked) : false;
 
@@ -30,7 +28,7 @@ export default function DemoReaderPage() {
     if (bookId === DEMO_BOOK_ID) toggleDemoBookmark();
   };
 
-  // 3) Lists hook (shared with dashboard / reader)
+  // 3) Lists hook
   const {
     getLists,
     listsContainingBook,
@@ -80,32 +78,39 @@ export default function DemoReaderPage() {
     [rawHtml]
   );
 
-  const mainClass = cx(
+  // 5) Map prefs 
+  const readerClasses = cx(
     'reader flex min-h-[100dvh] flex-col',
-    mode === 'light' && 'reader--light',
-    mode === 'sepia' && 'reader--sepia',
-    mode === 'dark' && 'reader--dark',
-    mode === 'paper' && 'reader--paper',
-    size === 'S' && 'reader--size-s',
-    size === 'M' && 'reader--size-m',
-    size === 'L' && 'reader--size-l',
-    width === 'S' && 'reader--width-s',
-    width === 'M' && 'reader--width-m',
-    width === 'L' && 'reader--width-l',
-    font === 'serif' && 'reader--font-serif',
-    font === 'sans' && 'reader--font-sans',
-    font === 'dyslexic' && 'reader--font-dyslexic'
+
+    !prefsLoading && (!mode || mode === 'light') && 'reader--light reader--use-site-bg',
+    !prefsLoading && mode === 'sepia' && 'reader--sepia',
+    !prefsLoading && mode === 'dark' && 'reader--dark',
+    !prefsLoading && mode === 'paper' && 'reader--paper',
+
+    !prefsLoading && size === 'S' && 'reader--size-s',
+    !prefsLoading && size === 'M' && 'reader--size-m',
+    !prefsLoading && size === 'L' && 'reader--size-l',
+
+    !prefsLoading && width === 'S' && 'reader--width-s',
+    !prefsLoading && width === 'M' && 'reader--width-m',
+    !prefsLoading && width === 'L' && 'reader--width-l',
+
+    !prefsLoading && font === 'serif' && 'reader--font-serif',
+    !prefsLoading && font === 'sans' && 'reader--font-sans',
+    !prefsLoading && font === 'dyslexic' && 'reader--font-dyslexic'
   );
+
+  const mainClass = cx(
+    readerClasses,
+    !isFullscreen && 'sm:ml-15',
+    'bg-[color:var(--bg)]'
+  );
+
 
   return (
     <main
-      className={cx(
-        mainClass,
-        !isFullscreen && 'sm:ml-15',
-        'bg-[color:var(--bg)]'
-      )}
+      className={mainClass}
     >
-      {/* ===== Action Rail: SAME behavior as real reader page ===== */}
       <ActionRail
         top="7.5rem"
         left="1rem"
@@ -149,7 +154,7 @@ export default function DemoReaderPage() {
           The Adventures of Sherlock Holmes (Demo)
         </h1>
         <p className="mt-1 text-base sm:text-lg opacity-80">
-          Project Gutenberg · Offline demo
+          Project Gutenberg
         </p>
       </header>
 
