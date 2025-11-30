@@ -11,6 +11,7 @@ import { useReaderPrefs } from '@/components/customizations/useReaderPrefs';
 import ActionRail from '@/components/layout/ActionRail';
 import { useBookmark } from '@/hooks/useBookmark';
 import { useLists } from '@/hooks/useLists';
+import { useReadingProgress } from '@/hooks/useReadingProgress';
 
 const cx = (...x) => x.filter(Boolean).join(' ');
 
@@ -130,6 +131,9 @@ export default function BookReaderPage() {
     !prefsLoading && font === 'sans' && 'reader--font-sans',
     !prefsLoading && font === 'dyslexic' && 'reader--font-dyslexic'
   );
+  //hook that handles restoring and saving scroll progress
+  useReadingProgress({ bookId, rawHtml });
+
 
   const mainClass = cx(
     readerClasses,

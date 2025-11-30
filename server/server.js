@@ -18,6 +18,7 @@ import rateLimit from 'express-rate-limit';
 
 import bookRoutes from './routes/books.js';
 import bookmarkRoutes from './routes/bookmarks.js';
+import progressRouter from './routes/progress.js';
 import prefsRouter from './routes/prefs.js';
 import listsRouter from './routes/lists.js';
 import { verifyFirebaseToken } from './auth.js';
@@ -38,6 +39,7 @@ app.use('/api/books', bookRoutes);
 app.use('/api/bookmarks', bookmarkRoutes);
 app.use('/api/prefs', prefsRouter);
 app.use('/api/lists', listsRouter);
+app.use('/api/progress', progressRouter);
 
 
 // Protected routes
