@@ -13,6 +13,8 @@ import MobileNavRailButton from '@/components/user_actions/MobileNavRailButton';
 import { useBookmark } from '@/hooks/useBookmark';
 import { useLists } from '@/hooks/useLists';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
+import ReaderSkeleton from '@/components/reader/ReaderSkeleton';
+
 
 const cx = (...x) => x.filter(Boolean).join(' ');
 
@@ -168,72 +170,76 @@ export default function BookReaderPage() {
         extraBefore={<MobileNavRailButton />}
       />
 
-      {/* Header with cover/title/author (hidden in fullscreen) */}
-      <header 
-        className={cx(
-          "mx-auto w-full max-w-[var(--reader-max)] px-4 pt-6 text-center",
-          isFullscreen && "hidden"
-        )}
-      >
-        <div className="relative mx-auto aspect-[2/3] w-40 sm:w-48 md:w-56 lg:w-64 xl:w-72 overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
-          {coverUrl ? (
-            <Image
-              src={coverUrl}
-              alt={`Cover of ${title}`}
-              fill
-              sizes="(max-width: 640px) 10rem, (max-width: 768px) 12rem, (max-width: 1024px) 14rem, 16rem"
-              className="object-cover"
-              priority
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-xs opacity-60">
-              No cover
+      {/* While loading HTML, show reader skeleton instead of real content */}
+      {loading ? (
+        <ReaderSkeleton isFullscreen={isFullscreen} />
+      ) : (
+        <>
+          {/* Header with cover/title/author (hidden in fullscreen) */}
+          <header 
+            className={cx(
+              "mx-auto w-full max-w-[var(--reader-max)] px-4 pt-6 text-center",
+              isFullscreen && "hidden"
+            )}
+          >
+            <div className="relative mx-auto aspect-[2/3] w-40 sm:w-48 md:w-56 lg:w-64 xl:w-72 overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
+              {coverUrl ? (
+                <Image
+                  src={coverUrl}
+                  alt={`Cover of ${title}`}
+                  fill
+                  sizes="(max-width: 640px) 10rem, (max-width: 768px) 12rem, (max-width: 1024px) 14rem, 16rem"
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-xs opacity-60">
+                  No cover
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        <h1 className="mt-4 text-2xl sm:text-3xl font-bold leading-tight">
-          {title}
-        </h1>
-        <p className="mt-1 text-base sm:text-lg opacity-80">
-          {authors}
-        </p>
-      </header>
+            <h1 className="mt-4 text-2xl sm:text-3xl font-bold leading-tight">
+              {title}
+            </h1>
+            <p className="mt-1 text-base sm:text-lg opacity-80">
+              {authors}
+            </p>
+          </header>
 
-      {/* 3-column layout: gutter | content | gutter */}
-      <section className="flex min-h-0 flex-1">
-        <aside 
-          className={cx(
-            "w-[clamp(0px,8vw,240px)]",
-            isFullscreen && "hidden"
-          )} 
-          aria-hidden="true" 
-        />
+          {/* 3-column layout: gutter | content | gutter */}
+          <section className="flex min-h-0 flex-1">
+            <aside 
+              className={cx(
+                "w-[clamp(0px,8vw,240px)]",
+                isFullscreen && "hidden"
+              )} 
+              aria-hidden="true" 
+            />
 
-        <article
-          ref={contentRef}
-          className={cx(
-            "reader-content mx-auto overflow-auto",
-            isFullscreen
-              ? "w-screen max-w-none px-6 sm:px-10 py-6 min-h-[100dvh]"
-              : "w-full max-w-[var(--reader-max)] px-4 py-4"
-          )}
-          aria-live="polite"
-          dangerouslySetInnerHTML={{ __html: loading ? '' : safeHtml }}
-        />
+            <article
+              ref={contentRef}
+              className={cx(
+                "reader-content mx-auto overflow-auto",
+                isFullscreen
+                  ? "w-screen max-w-none px-6 sm:px-10 py-6 min-h-[100dvh]"
+                  : "w-full max-w-[var(--reader-max)] px-4 py-4"
+              )}
+              aria-live="polite"
+              dangerouslySetInnerHTML={{ __html: loading ? '' : safeHtml }}
+            />
 
-        <div 
-          className={cx(
-            "w-[clamp(0px,8vw,240px)]",
-            isFullscreen && "hidden"
-          )} 
-          aria-hidden="true" 
-        />
-      </section>
-
-      {/* Status and errors */}
-      {loading && (
-        <p className="px-4 py-3 text-center text-neutral-500">Loading…</p>
+            <div 
+              className={cx(
+                "w-[clamp(0px,8vw,240px)]",
+                isFullscreen && "hidden"
+              )} 
+              aria-hidden="true" 
+            />
+          </section>
+        </>
       )}
+
+      {/* Errors */}
       {err && (
         <p className="px-4 py-3 text-center text-red-600">
           Error: {err}
