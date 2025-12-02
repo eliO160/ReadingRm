@@ -139,8 +139,7 @@ export default function ActionRail({
 
   return (
     <div
-      className={"fixed z-50 flex flex-col items-center gap-3 " + className}
-      style={{ top, left }}
+      className={"flex flex-col items-center gap-3 " + className}
       aria-label={ariaLabel}
     >
       {extraBefore}

@@ -8,7 +8,8 @@ import Image from 'next/image';
 
 import { getBestCoverUrl } from '@/lib/covers';
 import { useReaderPrefs } from '@/components/customizations/useReaderPrefs';
-import ActionRail from '@/components/layout/ActionRail';
+import ReaderActionsDrawer from '@/components/layout/ReaderActionsDrawer';
+import MobileNavRailButton from '@/components/user_actions/MobileNavRailButton';
 import { useBookmark } from '@/hooks/useBookmark';
 import { useLists } from '@/hooks/useLists';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
@@ -144,9 +145,7 @@ export default function BookReaderPage() {
   return (
     <main className={mainClass}>
       {/* Reusable Action Rail */}
-      <ActionRail
-        top="7.5rem"
-        left="1rem"
+      <ReaderActionsDrawer
         bookId={bookId}
         tocHtml={rawHtml}
         contentRef={contentRef}
@@ -155,14 +154,18 @@ export default function BookReaderPage() {
         prefs={prefs}
         setPref={setPref}
         // Bookmarks
-        isBookBookmarked={(id) => id === bookId ? bookmarked : false}
-        toggleBookmark={(id) => { if (id === bookId) return toggle(); }}
+        isBookBookmarked={(id) => (id === bookId ? bookmarked : false)}
+        toggleBookmark={(id) => {
+          if (id === bookId) return toggle();
+        }}
         // Lists
         getLists={getLists}
         listsContainingBook={listsContainingBook}
         addBookToList={addBookToList}
         removeBookFromList={removeBookFromList}
         createListAndAdd={createListAndAdd}
+        // 👇 This still ends up at the top of the ActionRail inside the drawer
+        extraBefore={<MobileNavRailButton />}
       />
 
       {/* Header with cover/title/author (hidden in fullscreen) */}

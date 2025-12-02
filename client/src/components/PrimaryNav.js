@@ -7,7 +7,11 @@ export default function PrimaryNav({ links, className = '', onItemClick }) {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Primary" className={className}>
+    <nav 
+      aria-label="Primary" 
+      className={`flex items-center gap-4 ${className}`}
+    >
+
       {links.map(({ href, label }) => {
         const isActive = pathname === href;
         return (
@@ -16,7 +20,9 @@ export default function PrimaryNav({ links, className = '', onItemClick }) {
             href={href}
             aria-current={isActive ? 'page' : undefined}
             onClick={onItemClick}
-            className={`nav-link ${isActive ? 'nav-link--active' : ''}`} 
+            className={`nav-link whitespace-nowrap ${
+              isActive ? 'nav-link--active' : ''
+            }`} 
           >
             {label}
           </Link>
