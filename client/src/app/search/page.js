@@ -5,6 +5,7 @@ import Link from 'next/link';
 import LinkButton from '@/components/ui/LinkButton';
 import BookCover from '@/components/BookCover';
 import { getBestCoverUrl } from '@/lib/covers';
+import SearchResultsSkeleton from '@/components/search/SearchResultsSkeleton';
 
 
 const cache = new Map(); //simple in-memory cache
@@ -67,12 +68,15 @@ export default function SearchResultsPage() {
       <h1>Search Results</h1>
 
       {!q && <p>Type a query in the search bar and press Enter</p>}
-      {status === 'loading' && <p>Searching...</p>}
-      {status === 'error' && <p className="text-red-600">{error}</p>}
-      {status === 'done' && results.length === 0 && <p>No results found for `{q}`.</p>}
 
-      {results.length > 0 && (
-        <ul className="space-y-6">
+      {status === 'loading' && q && <SearchResultsSkeleton />}
+
+      {status === 'error' && <p className="mt-4 text-red-600">{error}</p>}
+
+      {status === 'done' && results.length === 0 && <p className="mt-4">No results found for `{q}`.</p>}
+
+      {status === 'done' && results.length > 0 && (
+        <ul className="mt-4 space-y-6">
           {results.map((b) => {
             const coverUrl = getBestCoverUrl(b, 'medium'); // returns a valid URL either way
             return (
@@ -96,14 +100,10 @@ export default function SearchResultsPage() {
                   </div>
 
                   <div className="mt-3 flex flex-wrap items-center gap-3">
-                    {/* 
-                    <Link
-                      href={`/books/${b.id}`}
-                      className="text-[color:var(--link)] hover:text-[color:var(--link-hover)] underline underline-offset-4"
+                    <LinkButton 
+                      href={`/book/${b.id}/read`} 
+                      className="btn px-3 py-1.5 text-sm"
                     >
-                      View details
-                    </Link> */}
-                    <LinkButton href={`/book/${b.id}/read`} className="btn px-3 py-1.5 text-sm">
                       Read the book
                     </LinkButton>
                   </div>
