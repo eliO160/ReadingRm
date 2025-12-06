@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import LinkButton from '@/components/ui/LinkButton'; // adjust path if yours differs
+import LinkButton from '@/components/ui/LinkButton';
 
 const cn = (...x) => x.filter(Boolean).join(' ');
 
-// Common language choices (add more anytime)
 const LANGUAGE_OPTIONS = [
   { code: 'en', label: 'English' },
   { code: 'fr', label: 'French' },
@@ -17,7 +16,6 @@ const LANGUAGE_OPTIONS = [
   { code: 'la', label: 'Latin' },
 ];
 
-// Popular mime types for Gutenberg
 const MIME_OPTIONS = [
   { value: '', label: 'Any' },
   { value: 'text/', label: 'Text (any)' },
@@ -28,25 +26,29 @@ const MIME_OPTIONS = [
   { value: 'application/pdf', label: 'PDF' },
 ];
 
-// copyright can be true,false,null (multi-select allowed)
 const COPYRIGHT_OPTIONS = [
   { value: 'false', label: 'Public domain (USA)' },
   { value: 'true', label: 'Has copyright' },
   { value: 'null', label: 'Unknown' },
 ];
 
-// sort options
 const SORT_OPTIONS = [
   { value: 'popular', label: 'Popularity (default)' },
   { value: 'ascending', label: 'Gutenberg ID: Low → High' },
   { value: 'descending', label: 'Gutenberg ID: High → Low' },
 ];
 
+function baseInputClasses(extra = '') {
+  return cn(
+    'mt-1 block w-full rounded-xl border border-black/10 dark:border-white/10',
+    'bg-transparent px-3 py-2 text-sm',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--link)]',
+    'focus-visible:ring-offset-1 focus-visible:ring-offset-[color:var(--bg)]',
+    extra
+  );
+}
+
 export default function AdvancedSearchForm({
-  /** Where should the query be sent in your app?
-   *  For *front-end only* testing, send users to your existing /search page.
-   *  Your /search page can later read these params and call your API.
-   */
   actionHref = '/search',
   className,
 }) {
@@ -54,9 +56,9 @@ export default function AdvancedSearchForm({
   const [topic, setTopic] = useState('');
   const [authorStart, setAuthorStart] = useState('');
   const [authorEnd, setAuthorEnd] = useState('');
-  const [languages, setLanguages] = useState(['en']);    // default English
-  const [mime, setMime] = useState('');                  // any
-  const [copyright, setCopyright] = useState([]);        // none selected
+  const [languages, setLanguages] = useState(['en']);
+  const [mime, setMime] = useState('');
+  const [copyright, setCopyright] = useState([]);
   const [sort, setSort] = useState('popular');
 
   // Build URLSearchParams compatible with Gutendex
@@ -76,13 +78,11 @@ export default function AdvancedSearchForm({
     if (copyright.length > 0) p.set('copyright', copyright.join(','));
 
     if (sort && sort !== 'popular') p.set('sort', sort);
-    // Note: 'popular' is default on the API, so omit it unless changed.
 
     return p.toString();
   }, [keywords, topic, authorStart, authorEnd, languages, mime, copyright, sort]);
 
-  // Where the LinkButton should navigate (your app’s search route)
-  const href = `${actionHref}?${queryString}`;
+  const href = queryString ? `${actionHref}?${queryString}` : actionHref;
 
   const resetAll = () => {
     setKeywords('');
@@ -111,72 +111,90 @@ export default function AdvancedSearchForm({
     <form
       aria-labelledby="adv-search-title"
       className={cn(
-        "rounded-2xl border border-black/10 dark:border-white/10 p-6 bg-[color:var(--bg)] text-[color:var(--fg)] shadow-sm",
+        'rounded-2xl border border-black/10 dark:border-white/10',
+        'bg-[color:var(--bg)] text-[color:var(--fg)] shadow-sm',
+        'p-6 md:p-8 space-y-6',
         className
       )}
       onSubmit={(e) => e.preventDefault()} // front-end only for now
     >
-      <h2 id="adv-search-title" className="text-2xl font-bold">Advanced Search</h2>
-      <p className="mt-1 opacity-80 text-sm">Build a query using Gutendex parameters.</p>
+      {/* <header className="space-y-1">
+        <h2 id="adv-search-title" className="text-2xl font-semibold">
+          Advanced Search
+        </h2>
+        <p className="text-sm opacity-80">
+          Combine keywords, topics, languages, formats, and more using Gutendex parameters.
+        </p>
+      </header> */}
 
       {/* Keywords + Topic */}
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
+      <section className="grid gap-4 md:grid-cols-2">
         <div>
-          <label htmlFor="kw" className="font-semibold">Keywords (author or title)</label>
+          <label htmlFor="kw" className="text-sm font-medium">
+            Keywords (author or title)
+          </label>
           <input
             id="kw"
             type="text"
             value={keywords}
             onChange={(e) => setKeywords(e.target.value)}
-            className="mt-2 w-full rounded-xl border border-black/10 dark:border-white/10 bg-transparent px-3 py-2"
+            className={baseInputClasses()}
             placeholder="e.g., dickens great"
           />
-          <p className="mt-1 text-sm opacity-70">
+          <p className="mt-1 text-xs opacity-70">
             Matches words in author names and book titles.
           </p>
         </div>
 
         <div>
-          <label htmlFor="topic" className="font-semibold">Topic</label>
+          <label htmlFor="topic" className="text-sm font-medium">
+            Topic
+          </label>
           <input
             id="topic"
             type="text"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            className="mt-2 w-full rounded-xl border border-black/10 dark:border-white/10 bg-transparent px-3 py-2"
+            className={baseInputClasses()}
             placeholder="e.g., children, science, mystery"
           />
-          <p className="mt-1 text-sm opacity-70">
-            Searches subjects & bookshelves for a key phrase.
+          <p className="mt-1 text-xs opacity-70">
+            Searches subjects &amp; bookshelves for a key phrase.
           </p>
         </div>
-      </div>
+      </section>
 
       {/* Author year range */}
-      <fieldset className="mt-6">
-        <legend className="font-semibold">Author lived between years (BCE negative)</legend>
-        <div className="mt-2 grid gap-4 md:grid-cols-2">
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium">
+          Author lived between years <span className="opacity-70">(BCE as negative)</span>
+        </legend>
+        <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label htmlFor="start" className="block text-sm opacity-80">Start year</label>
+            <label htmlFor="start" className="block text-xs opacity-80">
+              Start year
+            </label>
             <input
               id="start"
               type="number"
               inputMode="numeric"
               value={authorStart}
               onChange={(e) => setAuthorStart(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-black/10 dark:border-white/10 bg-transparent px-3 py-2"
+              className={baseInputClasses()}
               placeholder="e.g., 1800"
             />
           </div>
           <div>
-            <label htmlFor="end" className="block text-sm opacity-80">End year</label>
+            <label htmlFor="end" className="block text-xs opacity-80">
+              End year
+            </label>
             <input
               id="end"
               type="number"
               inputMode="numeric"
               value={authorEnd}
               onChange={(e) => setAuthorEnd(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-black/10 dark:border-white/10 bg-transparent px-3 py-2"
+              className={baseInputClasses()}
               placeholder="e.g., 1899"
             />
           </div>
@@ -184,105 +202,135 @@ export default function AdvancedSearchForm({
       </fieldset>
 
       {/* Languages */}
-      <fieldset className="mt-6">
-        <legend className="font-semibold">Languages</legend>
-        <p className="text-sm opacity-70">Choose one or more.</p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {LANGUAGE_OPTIONS.map((opt) => (
-            <label
-              key={opt.code}
-              className={cn(
-                "cursor-pointer select-none rounded-xl border px-3 py-1.5",
-                languages.includes(opt.code)
-                  ? "border-[color:var(--link)] bg-[color:var(--link)] text-[color:var(--bg)]"
-                  : "border-black/10 dark:border-white/10"
-              )}
-            >
-              <input
-                type="checkbox"
-                className="sr-only"
-                checked={languages.includes(opt.code)}
-                onChange={() => toggleLanguage(opt.code)}
-                aria-label={opt.label}
-              />
-              {opt.label}
-            </label>
-          ))}
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium">Languages</legend>
+        <p className="text-xs opacity-70">Choose one or more.</p>
+        <div className="mt-1 flex flex-wrap gap-2">
+          {LANGUAGE_OPTIONS.map((opt) => {
+            const active = languages.includes(opt.code);
+            return (
+              <label
+                key={opt.code}
+                className={cn(
+                  'cursor-pointer select-none rounded-full px-3 py-1.5 text-sm inline-flex items-center',
+                  'border transition',
+                  active
+                    ? 'border-[color:var(--link)] bg-[color:var(--link)] text-[color:var(--bg)]'
+                    : 'border-black/10 dark:border-white/10 hover:border-[color:var(--link)]/60'
+                )}
+              >
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  checked={active}
+                  onChange={() => toggleLanguage(opt.code)}
+                  aria-label={opt.label}
+                />
+                {opt.label}
+              </label>
+            );
+          })}
         </div>
       </fieldset>
 
       {/* Mime type + Sort */}
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
+      <section className="grid gap-4 md:grid-cols-2">
         <div>
-          <label htmlFor="mime" className="font-semibold">Format (MIME)</label>
+          <label htmlFor="mime" className="text-sm font-medium">
+            Format (MIME)
+          </label>
           <select
             id="mime"
-            className="mt-2 w-full rounded-xl border border-black/10 dark:border-white/10 bg-transparent px-3 py-2"
+            className={baseInputClasses()}
             value={mime}
             onChange={(e) => setMime(e.target.value)}
           >
             {MIME_OPTIONS.map((m) => (
-              <option key={m.value || 'any'} value={m.value}>{m.label}</option>
+              <option key={m.value || 'any'} value={m.value}>
+                {m.label}
+              </option>
             ))}
           </select>
-          <p className="mt-1 text-sm opacity-70">Tip: choose “Text (any)” to include HTML & Plain.</p>
+          <p className="mt-1 text-xs opacity-70">
+            Tip: use “Text (any)” to include HTML &amp; Plain.
+          </p>
         </div>
 
-        <fieldset>
-          <legend className="font-semibold">Sort</legend>
-          <div className="mt-2 grid gap-2">
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium">Sort</legend>
+          <div className="space-y-1">
             {SORT_OPTIONS.map((s) => (
-              <label key={s.value} className="inline-flex items-center gap-2">
+              <label
+                key={s.value}
+                className="inline-flex items-center gap-2 text-sm cursor-pointer"
+              >
                 <input
                   type="radio"
                   name="sort"
                   value={s.value}
                   checked={sort === s.value}
                   onChange={() => setSort(s.value)}
+                  className="h-4 w-4"
                 />
                 <span>{s.label}</span>
               </label>
             ))}
           </div>
         </fieldset>
-      </div>
+      </section>
 
       {/* Copyright */}
-      <fieldset className="mt-6">
-        <legend className="font-semibold">Copyright status</legend>
-        <p className="text-sm opacity-70">Multi-select allowed.</p>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          {COPYRIGHT_OPTIONS.map((opt) => (
-            <label key={opt.value} className="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={copyright.includes(opt.value)}
-                onChange={() => toggleCopyright(opt.value)}
-              />
-              <span>{opt.label}</span>
-            </label>
-          ))}
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium">Copyright status</legend>
+        <p className="text-xs opacity-70">Multi-select allowed.</p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {COPYRIGHT_OPTIONS.map((opt) => {
+            const active = copyright.includes(opt.value);
+            return (
+              <label
+                key={opt.value}
+                className="inline-flex items-center gap-2 text-sm cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  className="h-4 w-4"
+                  checked={active}
+                  onChange={() => toggleCopyright(opt.value)}
+                />
+                <span>{opt.label}</span>
+              </label>
+            );
+          })}
         </div>
       </fieldset>
 
       {/* Actions */}
-      <div className="mt-8 flex flex-wrap items-center gap-3">
-        <LinkButton href={href} variant="primary">
-          Search
-        </LinkButton>
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-xl border px-4 py-2 border-black/10 dark:border-white/10"
-          onClick={resetAll}
-        >
-          Reset
-        </button>
-
-        {/* tiny live preview of the URL you’ll navigate to */}
-        <div className="mt-2 w-full text-sm opacity-70 break-all">
-          <span className="font-semibold">Preview:</span> {actionHref}?{queryString || '(no params)'}
+      <section className="pt-2 border-t border-black/5 dark:border-white/5 space-y-2">
+        <div className="flex flex-wrap items-center gap-3">
+          <LinkButton href={href} variant="primary">
+            Search
+          </LinkButton>
+          <button
+            type="button"
+            onClick={resetAll}
+            className={cn(
+              'inline-flex items-center justify-center rounded-xl border',
+              'border-black/10 dark:border-white/10',
+              'px-4 py-2 text-sm font-medium',
+              'hover:border-[color:var(--link)]/70'
+            )}
+          >
+            Reset
+          </button>
         </div>
-      </div>
+        <p className="text-xs opacity-70 break-all">
+          <span className="font-medium">Preview:</span>{' '}
+          <code className="font-mono">
+            {actionHref}
+            {queryString ? `?${queryString}` : ' (no params)'}
+          </code>
+        </p>
+      </section>
     </form>
   );
 }
