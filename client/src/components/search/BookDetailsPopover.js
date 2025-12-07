@@ -1,5 +1,5 @@
 'use client';
-
+import Link from 'next/link';
 import BookCover from '@/components/BookCover';
 import { getBestCoverUrl } from '@/lib/covers';
 
@@ -174,26 +174,7 @@ export default function BookDetailsPopover({ book, onClose }) {
               </div>
             )}
 
-            {/* Subjects */}
-            {subjects.length > 0 && (
-              <div className="mt-3 space-y-1">
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Subjects
-                </h3>
-                <div className="flex flex-wrap gap-1">
-                  {subjects.map((s) => (
-                    <span
-                      key={s}
-                      className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                    >
-                      {s}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Bookshelves */}
+            {/* Bookshelves and links */}
             {bookshelves.length > 0 && (
               <div className="mt-3 space-y-1">
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -201,12 +182,19 @@ export default function BookDetailsPopover({ book, onClose }) {
                 </h3>
                 <div className="flex flex-wrap gap-1">
                   {bookshelves.map((s) => (
-                    <span
+                    <Link
                       key={s}
-                      className="rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-200"
+                      href={`/recommendations?topic=${encodeURIComponent(s)}`}
+                      className="
+                          rounded-full bg-indigo-50 px-2 py-0.5
+                          text-[11px] text-indigo-800
+                          hover:bg-indigo-100 hover:text-indigo-900
+                          dark:bg-indigo-900/40 dark:text-indigo-200
+                          dark:hover:bg-indigo-800/70
+                      "
                     >
                       {s}
-                    </span>
+                    </Link>
                   ))}
                 </div>
               </div>
