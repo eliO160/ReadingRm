@@ -1,6 +1,5 @@
 'use client';
-
-import { Link } from "lucide-react";
+import PopularBooksCarousel from "@/components/home/PopularBooksCarousel";
 
 export default function HomePage() {
   return (
@@ -16,7 +15,6 @@ export default function HomePage() {
           Create an account and start building your own digital library.
         </p>
 
-
         {/* <Image
           src="/demo/cover.jpg"
           alt="Cover of The Adventures of Sherlock Holmes"
@@ -27,6 +25,8 @@ export default function HomePage() {
           sizes="(max-width: 900px) 90vw, 800px"
         /> */}
       </section>
+      <PopularBooksCarousel />
+
     </main>
   );
 }

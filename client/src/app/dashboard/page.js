@@ -171,7 +171,7 @@ export default function DashboardPage() {
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-6 space-y-10">
       <section>
-        <div className="text-2xl font-semibold">Your Bookmarks</div>
+        <div className="text-2xl font-semibold">My Bookcase</div>
 
         {/* States: not ready / signed out / loading / error / empty / results */}
         {!authReady && (
@@ -181,13 +181,13 @@ export default function DashboardPage() {
         {authReady && !user && (
           <div className="mt-6">
             <p className="opacity-80">
-              You’re not signed in. <Link href="/auth" className="underline">Sign in</Link> to see your bookmarks.
+              You’re not signed in. <Link href="/auth" className="underline">Sign in</Link> to see your saved books.
             </p>
           </div>
         )}
 
         {authReady && user && loading && (
-          <p className="mt-6 opacity-70">Loading your bookmarks…</p>
+          <p className="mt-6 opacity-70">Loading…</p>
         )}
 
         {authReady && user && error && (
@@ -195,7 +195,7 @@ export default function DashboardPage() {
         )}
 
         {authReady && user && !loading && !error && books.length === 0 && (
-          <p className="mt-6 opacity-70">No bookmarks yet.</p>
+          <p className="mt-6 opacity-70">Nothing here yet.</p>
         )}
 
         {authReady && user && !loading && !error && books.length > 0 && (
@@ -210,7 +210,7 @@ export default function DashboardPage() {
       {/* Lists section */}
       {authReady && user && (
         <section>
-          <div className="text-2xl font-semibold">Your Lists</div>
+          <div className="text-2xl font-semibold">Your Booklists</div>
 
           {listsLoading && (
             <p className="mt-4 opacity-70">Loading your lists…</p>
