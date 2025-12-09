@@ -1,12 +1,12 @@
 'use client';
 import { useMemo, useRef, useState } from 'react';
 import ReaderSettingsPopover from '@/components/customizations/ReaderSettingsPopover';
-import BookmarkButton from '@/components/user_actions/Bookmark';
-import AddToListButton from '@/components/user_actions/AddToListButton';
-import FullScreenButton from '@/components/user_actions/FullScreenButton';
-import TocButton from '@/components/user_actions/TocButton';
-import TopOfPageButton from '@/components/user_actions/TopOfPageButton';
-import { parseTocFromHtml } from '@/components/toc/parseTocfromHtml';
+import BookmarkButton from '@/components/reader/user_actions/Bookmark';
+import AddToListButton from '@/components/reader/user_actions/AddToListButton';
+import FullScreenButton from '@/components/reader/user_actions/FullScreenButton';
+import TocButton from '@/components/reader/user_actions/TocButton';
+import TopOfPageButton from '@/components/reader/user_actions/TopOfPageButton';
+import { parseTocFromHtml } from '@/components/reader/toc/parseTocfromHtml';
 import { useReaderPrefs as usePrefsHook } from '@/components/customizations/useReaderPrefs';
 
 export default function ActionRail({

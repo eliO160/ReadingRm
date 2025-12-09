@@ -307,18 +307,15 @@ export default function AdvancedSearchForm({
       {/* Actions */}
       <section className="pt-2 border-t border-black/5 dark:border-white/5 space-y-2">
         <div className="flex flex-wrap items-center gap-3">
-          <LinkButton href={href} variant="primary">
+          <LinkButton 
+            href={href} 
+          >
             Search
           </LinkButton>
           <button
             type="button"
             onClick={resetAll}
-            className={cn(
-              'inline-flex items-center justify-center rounded-xl border',
-              'border-black/10 dark:border-white/10',
-              'px-4 py-2 text-sm font-medium',
-              'hover:border-[color:var(--link)]/70'
-            )}
+            className="btn"
           >
             Reset
           </button>

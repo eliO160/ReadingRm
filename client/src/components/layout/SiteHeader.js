@@ -4,12 +4,12 @@ import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
-import ThemeToggle from '@/components/ThemeToggle';
-import SearchBar from './SearchBar';
-import PrimaryNav from '@/components/PrimaryNav';
+import ThemeToggle from '@/components/layout/ThemeToggle';
+import SearchBar from '@/components/search/SearchBar';
+import PrimaryNav from '@/components/layout/PrimaryNav';
 import { primaryLinks } from '@/config/navConfig';
 import { useAuth } from '@/components/auth/AuthProvider';
-import SignOutButton from './auth/SignOutButton';
+import SignOutButton from '../auth/SignOutButton';
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);

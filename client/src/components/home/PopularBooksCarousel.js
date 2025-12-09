@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
-import BookCover from '@/components/BookCover';
+import BookCover from '@/components/books/BookCover';
 import { getBestCoverUrl } from '@/lib/covers';
 import LinkButton from '@/components/ui/LinkButton';
-import BookDetailsPopover from '../search/BookDetailsPopover';
+import BookDetailsPopover from '@/components/search/BookDetailsPopover';
 
 function PopularBooksCarouselSkeleton({ title }) {
   const skeletonItems = Array.from({ length: 5 });
@@ -192,7 +192,7 @@ export default function PopularBooksCarousel({
             onClick={() => scrollByCard('prev')}
             aria-label="Scroll previous"
             className="
-              btn
+              icon-circle-btn
               absolute left-0 top-1/2 z-10 hidden -translate-y-1/2
               md:flex
             "
@@ -206,7 +206,7 @@ export default function PopularBooksCarousel({
             onClick={() => scrollByCard('next')}
             aria-label="Scroll next"
             className="
-              btn
+              icon-circle-btn
               absolute right-0 top-1/2 z-10 hidden -translate-y-1/2
               md:flex
             "
@@ -239,7 +239,7 @@ export default function PopularBooksCarousel({
                     shadow-sm
                     transition-transform transition-shadow duration-300 ease-out
                     hover:-translate-y-1 hover:shadow-lg
-                    dark:border-white/10 dark:bg-slate-900
+                    dark:border-white/10 dark:bg-[color:var(--surface-elevated-dark)]
                   "
                 >
                   <div className="flex flex-col items-center gap-3">
@@ -277,10 +277,7 @@ export default function PopularBooksCarousel({
                       <button
                         type="button"
                         onClick={() => setDetailsBook(book)}
-                        className="
-                          flex-1 rounded-md border border-black/10 px-2 py-1.5 text-xs font-medium
-                          hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10
-                        "
+                        className="btn flex-1"
                       >
                         Details
                       </button>
@@ -299,6 +296,9 @@ export default function PopularBooksCarousel({
           onClose={() => setDetailsBook(null)}
         />
       )}
+
+      
+
     </>
   );
 }

@@ -37,15 +37,7 @@ export default function ThemeToggle() {
       isSelected={isDark}
       onChange={onChange}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className={`
-        inline-flex h-9 w-9 items-center justify-center rounded-full
-        border border-neutral-300 dark:border-neutral-700
-        bg-white dark:bg-neutral-900
-        hover:bg-neutral-100 dark:hover:bg-neutral-800
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
-        focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400
-        transition
-      `}
+      className="icon-circle-btn"
     >
       {isDark ? <Sun size={18} /> : <Moon size={18} />}
     </ToggleButton>

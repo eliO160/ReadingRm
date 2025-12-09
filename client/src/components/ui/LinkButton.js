@@ -3,27 +3,11 @@ import React from "react";
 
 const cn = (...args) => args.filter(Boolean).join(" ");
 
-const sizeStyles = {
-  sm: "px-3 py-1.5 text-sm",
-  md: "px-4 py-2 text-base",
-  lg: "px-5 py-3 text-lg",
-};
-
-const variantStyles = {
-  primary: "btn",
-  ghost:
-    "inline-flex items-center justify-center rounded-xl font-semibold " +
-    "text-[color:var(--link)] hover:text-[color:var(--link-hover)] bg-transparent px-3 py-1.5",
-  outline:
-    "inline-flex items-center justify-center rounded-xl font-semibold border px-4 py-2 " +
-    "border-[color:var(--link)] text-[color:var(--link)] hover:bg-[color:var(--link)] hover:text-[color:var(--bg)]",
-};
 
 export default function LinkButton({
   children,
   className,
-  variant = "primary",
-  size = "md",
+  size,
   disabled = false,
   href,
   ...rest
@@ -41,7 +25,7 @@ export default function LinkButton({
       {...rest}
       aria-disabled={disabled || undefined}
       onClick={handleClick}
-      className={cn(variantStyles[variant], variant !== "primary" && sizeStyles[size], className)}
+      className={cn("btn", className)}
       role="button"
     >
       {children}
