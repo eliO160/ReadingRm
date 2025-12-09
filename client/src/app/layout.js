@@ -2,7 +2,7 @@
 import './globals.css';
 import { ThemeProvider } from 'next-themes';
 import { AuthProvider } from '@/components/auth/AuthProvider'
-import SiteHeader from '../components/SiteHeader';
+import SiteHeader from '@/components/layout/SiteHeader';
 
 export const metadata = { title: 'ReadingRm' };
 

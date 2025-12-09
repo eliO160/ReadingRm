@@ -1,6 +1,6 @@
 'use client';
 
-import AdvancedSearchForm from '@/components/AdvancedSearchForm';
+import AdvancedSearchForm from '@/components/search/AdvancedSearchForm';
 
 export default function AdvancedSearchPage() {
   return (

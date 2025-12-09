@@ -1,12 +1,12 @@
 'use client';
 import Link from 'next/link';
-import BookCover from '@/components/BookCover';
+import BookCover from '@/components/books/BookCover';
 import { getBestCoverUrl } from '@/lib/covers';
 
 import { useBookmark } from '@/hooks/useBookmark';
 import { useLists } from '@/hooks/useLists';
-import BookmarkButton from '@/components/user_actions/Bookmark';
-import AddToListButton from '@/components/user_actions/AddToListButton';
+import BookmarkButton from '@/components/reader/user_actions/Bookmark';
+import AddToListButton from '@/components/reader/user_actions/AddToListButton';
 
 export default function BookDetailsPopover({ book, onClose }) {
   // We only render this component when `book` is set from SearchResultsPage,

@@ -1,5 +1,6 @@
 'use client';
 import PopularBooksCarousel from "@/components/home/PopularBooksCarousel";
+import Image from "next/image";
 
 export default function HomePage() {
   return (
@@ -14,16 +15,6 @@ export default function HomePage() {
           for free.
           Create an account and start building your own digital library.
         </p>
-
-        {/* <Image
-          src="/demo/cover.jpg"
-          alt="Cover of The Adventures of Sherlock Holmes"
-          width={200}      // pick a reasonable intrinsic size
-          height={600}    // keep the aspect ratio
-          priority
-          className="mx-auto rounded-xl shadow"
-          sizes="(max-width: 900px) 90vw, 800px"
-        /> */}
       </section>
       <PopularBooksCarousel />
 

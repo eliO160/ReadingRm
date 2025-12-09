@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { TableOfContents as TocIcon, ListTree } from 'lucide-react';
-import PopoverPanel from '../ui/PopoverPanel';
+import PopoverPanel from '../../ui/PopoverPanel';
 
 export default function TocButton({
   items = [],                   // [{id,title,level}]

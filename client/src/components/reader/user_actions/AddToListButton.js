@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { ListPlus, Check } from 'lucide-react';
-import PopoverPanel from '../ui/PopoverPanel';
+import PopoverPanel from '../../ui/PopoverPanel';
 
 export default function AddToListButton({
   bookId,

@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 import LinkButton from '@/components/ui/LinkButton';
-import BookCover from '@/components/BookCover';
+import BookCover from '@/components/books/BookCover';
 import { getBestCoverUrl } from '@/lib/covers';
 import SearchResultsSkeleton from '@/components/search/SearchResultsSkeleton';
 import BookDetailsPopover from '@/components/search/BookDetailsPopover';

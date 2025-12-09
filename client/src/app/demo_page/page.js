@@ -10,8 +10,8 @@ import { useBookmark } from '@/hooks/useBookmark';
 import { useLists } from '@/hooks/useLists';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 
-import ReaderActionsDrawer from '@/components/layout/ReaderActionsDrawer';
-import MobileNavRailButton from '@/components/user_actions/MobileNavRailButton';
+import ReaderActionsDrawer from '@/components/reader/ReaderActionsDrawer';
+import MobileNavRailButton from '@/components/reader/user_actions/MobileNavRailButton';
 import ReaderSkeleton from '@/components/reader/ReaderSkeleton';
 
 const DEMO_BOOK_ID = '1661';

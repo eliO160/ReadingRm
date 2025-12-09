@@ -8,8 +8,8 @@ import Image from 'next/image';
 
 import { getBestCoverUrl } from '@/lib/covers';
 import { useReaderPrefs } from '@/components/customizations/useReaderPrefs';
-import ReaderActionsDrawer from '@/components/layout/ReaderActionsDrawer';
-import MobileNavRailButton from '@/components/user_actions/MobileNavRailButton';
+import ReaderActionsDrawer from '@/components/reader/ReaderActionsDrawer';
+import MobileNavRailButton from '@/components/reader/user_actions/MobileNavRailButton';
 import { useBookmark } from '@/hooks/useBookmark';
 import { useLists } from '@/hooks/useLists';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
