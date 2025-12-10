@@ -1,4 +1,4 @@
-// A tiny wrapper that injects the Firebase ID token into your existing api()
+// wrapper that injects the Firebase ID token into existing api()
 'use client';
 import { getAuth } from 'firebase/auth';
 import { api } from './api';

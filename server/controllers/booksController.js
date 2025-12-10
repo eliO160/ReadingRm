@@ -1,7 +1,6 @@
 //route logic to connect to Gutendex API
 import { getCache, setCache } from '../services/cache.js';
 import { searchGutendex, getGutendexBookById, getGutendexBookHtml } from '../services/gutendexService.js';
-import axios from 'axios';
 
 function logAxiosError(err, where = "") {
   if (err?.code === 'ECONNABORTED') {

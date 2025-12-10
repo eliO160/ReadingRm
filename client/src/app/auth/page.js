@@ -6,19 +6,17 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import AuthForm from '@/components/auth/AuthForm';
 
 export default function AuthPage() {
-  const { user, loading } = useAuth(); // expose `loading` in your provider if you don't already
+  const { user, loading } = useAuth(); 
   const router = useRouter();
 
   // Redirect after render when user becomes truthy
   useEffect(() => {
-    if (user) router.replace('/dashboard'); // or '/'
+    if (user) 
+      router.replace('/dashboard'); 
   }, [user, router]);
 
-  // Optionally show nothing or a loader while checking auth
-  if (loading) return null; // or <Spinner />
-
-  // If logged in, we'll redirect via the effect; render nothing here
-  if (user) return null;
+  if (loading) return null; //While auth state is still being determined, the page renders nothing
+  if (user) return null; //user already logged in, don't render auth form
 
   // Not logged in -> show the form; also redirect after successful sign-in
   return <AuthForm onSuccess={() => router.replace('/dashboard')} />;

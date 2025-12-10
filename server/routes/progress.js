@@ -1,4 +1,3 @@
-// routes/progress.js
 import express from 'express';
 import { verifyFirebaseToken } from '../auth.js';
 import ReadingProgress from '../models/ReadingProgress.js';
@@ -26,7 +25,7 @@ router.get('/:bookId', async (req, res) => {
   }
 });
 
-// PUT /api/progress/:bookId  -> body: { scrollPercent }
+// PUT /api/progress/:bookId 
 router.put('/:bookId', async (req, res) => {
   try {
     const userId = req.user.uid;

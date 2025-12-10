@@ -1,11 +1,10 @@
-// src/hooks/useReadingProgress.js
 'use client';
 
 import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { apiAuth } from '@/lib/apiAuth';
 
-export function useReadingProgress({ bookId, rawHtml /* contentRef is unused for now */ }) {
+export function useReadingProgress({ bookId, rawHtml }) {
   const [authReady, setAuthReady] = useState(false);
   const [user, setUser] = useState(null);
 
@@ -84,14 +83,14 @@ export function useReadingProgress({ bookId, rawHtml /* contentRef is unused for
 
     const handleScroll = () => {
       const doc = document.documentElement;
-      const scrollTop = window.scrollY || doc.scrollTop || 0;
-      const scrollHeight = doc.scrollHeight;
-      const clientHeight = window.innerHeight;
+      const scrollTop = window.scrollY || doc.scrollTop || 0; //how far down the user has scrolled (pixels).
+      const scrollHeight = doc.scrollHeight; //total document height
+      const clientHeight = window.innerHeight; //viewport height
       const maxScroll = scrollHeight - clientHeight || 1;
       const percent = scrollTop / maxScroll;
       const now = Date.now();
 
-      console.log('Scroll progress', { bookId, percent }); // remove after confirming
+      console.log('Scroll progress', { bookId, percent }); 
 
       if (now - lastSent > SAVE_INTERVAL) {
         lastSent = now;

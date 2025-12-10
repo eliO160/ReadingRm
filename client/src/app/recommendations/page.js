@@ -24,12 +24,12 @@ function buildQueryFromSearchParams(searchParams) {
     p.set('topic', topic);
   }
 
-  // Optional: allow a couple of extra filters to be forwarded
+  // allows extra filters to be forwarded
   const passthroughKeys = [
     'languages',
     'mime_type',
     'sort',
-    'page', // if you add pagination later
+    'page', // add pagination later
   ];
 
   passthroughKeys.forEach((key) => {
@@ -57,7 +57,6 @@ export default function RecommendationsPage() {
   const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'error' | 'done'
   const [error, setError] = useState(null);
 
-  // If you want to reuse the details popover here later:
   const [detailsBook, setDetailsBook] = useState(null);
 
   useEffect(() => {
