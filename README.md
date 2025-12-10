@@ -1,4 +1,4 @@
-# Web Reader App — User Manual
+# ReadingRm — User Manual
 
 A modern, accessibility-first web reader for public-domain literature.  
 Users can search for books, customize their reading experience, and save progress across devices.
