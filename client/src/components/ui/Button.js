@@ -10,7 +10,7 @@ const sizeStyles = {
 };
 
 const variantStyles = {
-  primary: "btn", // uses the .btn class + your CSS variables
+  primary: "btn", 
   ghost:
     "inline-flex items-center justify-center rounded-xl font-semibold " +
     "text-[color:var(--link)] hover:text-[color:var(--link-hover)] bg-transparent px-3 py-1.5",

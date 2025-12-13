@@ -1,4 +1,3 @@
-// app/demo/page.js (or wherever your demo reader lives)
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -83,10 +82,10 @@ export default function DemoReaderPage() {
     [rawHtml]
   );
 
-  // 5) Scroll progress (uses Firebase/Mongo just like real reader)
+  // 5) Scroll progress 
   useReadingProgress({ bookId: DEMO_BOOK_ID, rawHtml });
 
-  // 6) Map prefs → CSS classes (same as real reader)
+  // 6) Map prefs 
   const readerClasses = cx(
     'reader flex min-h-[100dvh] flex-col',
 
@@ -122,7 +121,6 @@ export default function DemoReaderPage() {
 
   return (
     <main className={mainClass}>
-      {/* NEW: Drawer-style action rail, same as real reader */}
       <ReaderActionsDrawer
         bookId={DEMO_BOOK_ID}
         tocHtml={rawHtml}
@@ -144,12 +142,10 @@ export default function DemoReaderPage() {
         extraBefore={<MobileNavRailButton />}
       />
 
-      {/* While loading, show the same skeleton layout as the real reader */}
       {loading ? (
         <ReaderSkeleton isFullscreen={isFullscreen} />
       ) : (
         <>
-          {/* Header / metadata (fixed demo metadata) */}
           <header
             className={cx(
               'mx-auto w-full max-w-[var(--reader-max)] px-4 pt-6 text-center',
@@ -174,7 +170,7 @@ export default function DemoReaderPage() {
             </p>
           </header>
 
-          {/* 3-column layout (same structure as real reader) */}
+          {/* 3-column layout */}
           <section className="flex min-h-0 flex-1">
             <aside
               className={cx(

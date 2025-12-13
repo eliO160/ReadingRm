@@ -11,8 +11,8 @@ export default function ReaderSettingsPopover({
   closeOnSelect = false,
   triggerClassName = '',
   panelClassName = '',
-  placementClass = 'absolute left-12 top-1', // new: default anchor next to the button
-  showOverlay = false,                        // new: optional scrim
+  placementClass = 'absolute left-12 top-1', // default anchor next to the button
+  showOverlay = false,                        // optional scrim
 }) {
   const [open, setOpen] = useState(false);
 

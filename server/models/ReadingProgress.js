@@ -1,4 +1,3 @@
-// models/ReadingProgress.js
 import mongoose from 'mongoose';
 
 const readingProgressSchema = new mongoose.Schema({

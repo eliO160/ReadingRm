@@ -5,9 +5,9 @@ import { useEffect, useState, useCallback } from 'react';
 import { Maximize2, Minimize2 } from 'lucide-react';
 
 export default function FullScreenButton({
-  targetRef,                 // optional: fullscreen just this element
-  className = 'icon-btn',    // match other buttons by default
-  size = 22,                 // same default as AddToListButton
+  targetRef,                 
+  className = 'icon-btn',    
+  size = 22,                
   withHotkey = true,
   hotkey = 'f',
   requestNavigationUI = 'hide',
@@ -68,7 +68,6 @@ export default function FullScreenButton({
       title={isFullscreen ? titleExit : titleEnter}
       className={[
         className,
-        // subtle pressed/active styling to match your hover chips
         isFullscreen && 'bg-neutral-100/60 dark:bg-neutral-900/60 border-neutral-300 dark:border-neutral-700'
       ].filter(Boolean).join(' ')}
     >

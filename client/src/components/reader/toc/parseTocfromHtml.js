@@ -1,4 +1,4 @@
-// Heuristic parser for Project Gutenberg-style HTML and your demo file.
+// Heuristic parser for Project Gutenberg-style HTML and demo file.
 // Returns [{ id, title, level }] where id is the in-page anchor.
 export function parseTocFromHtml(rawHtml) {
   if (!rawHtml) return [];
@@ -41,7 +41,6 @@ export function parseTocFromHtml(rawHtml) {
       return true;
     }
 
-    // super short junk
     if (title.length < 2) return true;
 
     return false;
@@ -54,8 +53,7 @@ export function parseTocFromHtml(rawHtml) {
     let t = (raw || '').replace(/\s+/g, ' ').trim();
     if (!t) return '';
 
-    // Optional: keep full story titles like "I. A Scandal in Bohemia" as-is.
-    // Only do lightweight cleanup / truncation.
+    // Keep full story titles like "I. A Scandal in Bohemia" as-is.
     if (t.length > 140) {
       t = t.slice(0, 137) + '…';
     }
@@ -76,7 +74,7 @@ export function parseTocFromHtml(rawHtml) {
     items.push({ id, title, level });
   };
 
-  // Track seen ids to avoid duplicates while we go
+  // Track seen ids to avoid duplicates
   const seenIds = new Set();
   const pushOnce = (id, rawTitle, level, allowFallback) => {
     if (!id || seenIds.has(id)) return;

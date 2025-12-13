@@ -1,4 +1,3 @@
-// src/components/ui/Skeleton.js
 export default function Skeleton({ className = '' }) {
   return (
     <div

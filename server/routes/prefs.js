@@ -5,6 +5,6 @@ import { getPrefs, updatePrefs } from '../controllers/prefsController.js';
 const router = express.Router();
 router.use(verifyFirebaseToken);
 router.get('/', getPrefs);
-router.patch('/', updatePrefs); // or PUT, your choice
+router.patch('/', updatePrefs); 
 
 export default router;

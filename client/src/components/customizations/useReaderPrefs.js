@@ -21,7 +21,7 @@ export function useReaderPrefs() {
 
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        // logged out → use defaults (you can also load localStorage here if you want)
+        // logged out → use defaults 
         lastServerSnapshot.current = null;
         setPrefs(DEFAULTS);
         setLoading(false);

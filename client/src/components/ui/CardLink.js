@@ -4,22 +4,15 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 
-/* tiny class combiner */
 const cn = (...x) => x.filter(Boolean).join(' ');
 
-/**
- * CardLink
- * - Renders a clickable card (anchor) for internal or external links.
- * - Accessible: semantic <a>, visible focus (uses your global :focus-visible),
- *   descriptive text, and “opens in new tab” hint for external links.
- */
 export default function CardLink({
   href,
   title,
   children,          // description/content
   external = false,  // open in new tab + icon
   className,
-  icon,              // optional React node for a leading icon
+  icon,              
   ...rest
 }) {
   const baseCard =
@@ -27,8 +20,6 @@ export default function CardLink({
     "p-6 transition-transform duration-150 hover:-translate-y-[2px] " +
     "shadow-sm hover:shadow-md focus:outline-none";
 
-  // Use your design tokens for background + text
-  // Tailwind can't directly set opacity on CSS var colors, so we keep it solid.
   const tokenColors = "bg-[color:var(--bg)] text-[color:var(--fg)]";
 
   const content = (

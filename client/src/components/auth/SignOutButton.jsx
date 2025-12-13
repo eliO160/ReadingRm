@@ -9,9 +9,8 @@ export default function SignOutButton({ className = '' }) {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      router.push('/'); // optional: send them home after sign out
+      router.push('/'); // send them home after sign out
     } catch (e) {
-      // no-op, or surface a toast if you use one
       console.error(e);
     }
   };

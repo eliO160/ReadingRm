@@ -15,8 +15,8 @@ export default function TopOfPageButton({
       type="button"
       onClick={scrollToTop}
       aria-label={label}
-      title={label}           // <-- this makes the hover text appear
-      className="icon-btn"    // your shared styles
+      title={label}           
+      className="icon-btn"   
     >
       <ArrowUpToLine size={size} />
     </button>

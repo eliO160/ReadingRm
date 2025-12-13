@@ -1,7 +1,6 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-// import { api } from '@/lib/api';      // ❌ no longer needed
 import { apiAuth } from '@/lib/apiAuth';
 
 export function useBookmark(bookId) {
@@ -10,7 +9,7 @@ export function useBookmark(bookId) {
   const [authReady, setAuthReady] = useState(false);
   const [error, setError] = useState(null);
 
-  // Know when auth is initialized (so we know whether to call the API)
+  // Know when auth is initialized (call the API?)
   useEffect(() => {
     const unsub = onAuthStateChanged(getAuth(), () => setAuthReady(true));
     return unsub;
@@ -35,7 +34,6 @@ export function useBookmark(bookId) {
           return;
         }
 
-        // 🔹 Use apiAuth so token + headers are consistent with your other calls
         const data = await apiAuth(
           `/api/bookmarks/${encodeURIComponent(bookId)}`,
           { method: 'GET' }
@@ -69,7 +67,7 @@ export function useBookmark(bookId) {
     }
 
     setError(null);
-    setBookmarked((prev) => !prev); // optimistic
+    setBookmarked((prev) => !prev); 
 
     try {
       if (!bookmarked) {
@@ -85,7 +83,6 @@ export function useBookmark(bookId) {
         });
       }
     } catch (e) {
-      // revert optimism
       setBookmarked((prev) => !prev);
       setError(e);
     }

@@ -166,7 +166,6 @@ export default function BookReaderPage() {
         addBookToList={addBookToList}
         removeBookFromList={removeBookFromList}
         createListAndAdd={createListAndAdd}
-        // 👇 This still ends up at the top of the ActionRail inside the drawer
         extraBefore={<MobileNavRailButton />}
       />
 
@@ -251,7 +250,7 @@ export default function BookReaderPage() {
         </p>
       )}
 
-      {/* Optional UX for bookmark state/errors */}
+      {/* UX for bookmark state/errors */}
       {bmLoading && (
         <div className="fixed bottom-4 left-4 text-xs bg-neutral-100 dark:bg-neutral-800 px-3 py-2 rounded">
           Checking bookmark…

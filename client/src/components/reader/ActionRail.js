@@ -20,7 +20,7 @@ export default function ActionRail({
   tocItems,
   contentRef,
 
-  // from page (optional)
+  // from page
   prefs,
   setPref,
   isBookBookmarked,
@@ -43,7 +43,7 @@ export default function ActionRail({
   const effectivePrefs = injectedPrefs ? prefs : prefsHook.prefs;
   const effectiveSetPref = injectedPrefs ? setPref : prefsHook.setPref;
 
-  // ===== 2) Do we even have lists wired? =====
+  // ===== 2) Lists wired? =====
   const hasListsApi = Boolean(
     getLists &&
     listsContainingBook &&

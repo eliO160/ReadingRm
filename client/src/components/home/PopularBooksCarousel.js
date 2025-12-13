@@ -222,9 +222,6 @@ export default function PopularBooksCarousel({
               px-2 sm:px-4
               scroll-smooth
             "
-            // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // This line controls the left/right padding:
-            // increase `px-2 sm:px-4` to push cards farther from the edges
           >
             {popular.map((book) => {
               const coverUrl = getBestCoverUrl(book, 'medium');

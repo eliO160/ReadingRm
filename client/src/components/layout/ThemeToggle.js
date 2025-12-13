@@ -20,7 +20,6 @@ export default function ThemeToggle() {
   const onChange = (selected) => {
     // selected true => dark, false => light
     setTheme(selected ? "dark" : "light");
-    // Optional: persist to your backend + cookie here
   };
 
   if (!mounted) {

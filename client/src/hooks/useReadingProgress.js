@@ -30,7 +30,7 @@ export function useReadingProgress({ bookId, rawHtml }) {
       try {
         const data = await apiAuth(`/api/progress/${bookId}`, { method: 'GET' });
 
-        // Nothing saved yet → just do nothing
+        // Nothing saved yet → do nothing
         if (!data || typeof data.scrollPercent !== 'number') return;
 
         requestAnimationFrame(() => {

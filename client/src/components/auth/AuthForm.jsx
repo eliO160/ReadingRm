@@ -33,7 +33,7 @@ export default function AuthForm({ defaultMode = 'signin', onSuccess }) {
       // ensure we have a fresh ID token for the API call
       await refreshToken?.(cred.user);
 
-      // call your backend to upsert the user (creates User doc in Mongo)
+      // call backend to upsert the user (creates User doc in Mongo)
       const token = await cred.user.getIdToken();
       await api('/api/me', { token });
 

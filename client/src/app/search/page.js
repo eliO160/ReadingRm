@@ -10,12 +10,8 @@ import { getBestCoverUrl } from '@/lib/covers';
 import SearchResultsSkeleton from '@/components/search/SearchResultsSkeleton';
 import BookDetailsPopover from '@/components/search/BookDetailsPopover';
 
-const cache = new Map(); // simple in-memory cache
+const cache = new Map(); 
 
-// Build a query string that:
-// - Supports your old `?q=` param
-// - Supports advanced-search params: search, topic, languages, etc.
-// - Forwards everything to /api/books in a Gutendex-compatible way
 function buildQueryFromSearchParams(searchParams) {
   const p = new URLSearchParams();
 
@@ -26,7 +22,6 @@ function buildQueryFromSearchParams(searchParams) {
 
   const effectiveSearch = advSearchRaw || qRaw;
   if (effectiveSearch) {
-    // Your /api/books (and Gutendex) expect `search=...`
     p.set('search', effectiveSearch);
   }
 
@@ -39,7 +34,7 @@ function buildQueryFromSearchParams(searchParams) {
     'mime_type',
     'copyright',
     'sort',
-    'page', // for pagination if you add it later
+    'page', // future work: pagination
   ];
 
   passthroughKeys.forEach((key) => {
@@ -209,7 +204,7 @@ export default function SearchResultsPage() {
                       Read the book
                     </LinkButton>
 
-                    {/* NEW: Read Details button */}
+                    {/* Read Details button */}
                     <button
                       type="button"
                       onClick={() => setDetailsBook(b)}
@@ -225,7 +220,7 @@ export default function SearchResultsPage() {
         </ul>
       )}
 
-      {/* NEW: Details popover */}
+      {/* Details popover */}
       {detailsBook && (
         <BookDetailsPopover
           book={detailsBook}

@@ -118,14 +118,6 @@ export default function AdvancedSearchForm({
       )}
       onSubmit={(e) => e.preventDefault()} // front-end only for now
     >
-      {/* <header className="space-y-1">
-        <h2 id="adv-search-title" className="text-2xl font-semibold">
-          Advanced Search
-        </h2>
-        <p className="text-sm opacity-80">
-          Combine keywords, topics, languages, formats, and more using Gutendex parameters.
-        </p>
-      </header> */}
 
       {/* Keywords + Topic */}
       <section className="grid gap-4 md:grid-cols-2">

@@ -1,4 +1,3 @@
-// server/cache.js
 const store = new Map(); // key -> { data, exp }
 const TTL = 60_000;
 

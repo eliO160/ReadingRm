@@ -16,7 +16,7 @@ export default function TocButton({
     ? items.filter(i => i.title.toLowerCase().includes(query.toLowerCase()))
     : items;
 
-  const Icon = TocIcon ?? ListTree; // fallback if your Lucide version lacks TableOfContents
+  const Icon = TocIcon ?? ListTree; 
 
   return (
     <div className="relative">

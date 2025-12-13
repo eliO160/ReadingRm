@@ -9,8 +9,6 @@ import BookmarkButton from '@/components/reader/user_actions/Bookmark';
 import AddToListButton from '@/components/reader/user_actions/AddToListButton';
 
 export default function BookDetailsPopover({ book, onClose }) {
-  // We only render this component when `book` is set from SearchResultsPage,
-  // so we can safely assume book is defined.
   const bookId = String(book.id);
   const coverUrl = getBestCoverUrl(book, 'medium');
 

@@ -158,7 +158,6 @@ export function useLists() {
     }
   }, [user]);
 
-  // 🔹 NEW: rename list
   const renameList = useCallback(async (listId, name) => {
     if (!user) return;
     const trimmed = name.trim();
@@ -177,7 +176,6 @@ export function useLists() {
     }
   }, [user]);
 
-  // 🔹 NEW: delete list
   const deleteList = useCallback(async (listId) => {
     if (!user) return;
     try {
